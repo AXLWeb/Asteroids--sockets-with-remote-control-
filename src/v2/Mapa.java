@@ -79,6 +79,7 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 		else t.start();
 	}
 
+	@SuppressWarnings("static-access")
 	@Override
 	public void run() {
 		this.createBufferStrategy(2);
@@ -92,7 +93,7 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 				System.out.println("enemigos: "+ getListaEnemigos().size());
 			}
 
-			try {t.sleep(20);} //60fps
+			try {t.sleep(10);} //60fps
 			catch (InterruptedException e) {e.printStackTrace();}
 		}
 	}
