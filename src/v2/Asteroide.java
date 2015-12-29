@@ -115,13 +115,6 @@ public class Asteroide extends Thread{
 		if(rotation > 359) this.rotation = 1;
 		this.rotation += factorRotacion;		
 	}
-
-	/**
-	 * Comprueba si 2 Asteroides chocan
-	 */
-	protected boolean chocaConOtro(Asteroide asteroide){
-		return (this.getPosicion().intersects(asteroide.getPosicion()));
-	}
 	
 	public synchronized void pintaAsteroide(Graphics2D g2d){
 		Graphics2D g = (Graphics2D) g2d.create();	//crea el objeto a partir de otro graphics

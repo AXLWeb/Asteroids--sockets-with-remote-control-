@@ -91,12 +91,12 @@ public class Generador extends Thread {
 	}
 
 	protected synchronized void generaAsteroide(){
-		System.out.println("Hay "+mapa.getListaAsteroides().size()+" asteroides creados");
 		if(mapa.getListaAsteroides().size() < mapa.getMax_Asteroides()){
 			Asteroide asteroid = new Asteroide(mapa);
 			mapa.getMapa().getListaAsteroides().push(asteroid);
 			asteroid.start();
 		}
+		System.out.println("Hay "+mapa.getListaAsteroides().size()+" asteroides creados");
 	}
 
 	protected void generaNave(){
@@ -110,6 +110,7 @@ public class Generador extends Thread {
 		mapa.getMapa().getListaMisiles().add(misil);	//lo añade al AL de misiles
 		System.out.println("antes del start del misil");
 		misil.start();
+		System.out.println("Despues del start del misil");
 	}
 
 	/*
@@ -121,11 +122,4 @@ public class Generador extends Thread {
 	}
 	*/
 
-	/*
-	protected synchronized void generaMisil(Enemigo e){
-		Misil misil = new Misil(e);
-		mapa.getMapa().getListaMisiles().add(misil);	//lo añade al AL de misiles
-		misil.start();
-	}
-	*/
 }

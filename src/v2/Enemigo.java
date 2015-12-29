@@ -93,8 +93,8 @@ public class Enemigo extends Thread{
 	 ******************************************************************/
 
 	public void avanzar() {
-		mapa.calculaLimitesdelMapa(this);
- 		recalculaVelocidad();
+		//mapa.calculaLimitesdelMapa(this);
+ 		//recalculaVelocidad();
 		//disparar();
 	}
 

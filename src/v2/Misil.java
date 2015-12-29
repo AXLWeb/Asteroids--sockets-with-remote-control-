@@ -62,28 +62,27 @@ public class Misil extends Thread {
 
 	public void run() {
 
- 		while(!isMuerto() && (this.x < mapa.getWidth() && this.x > 0) && (this.y > 0 && this.y < mapa.getHeight()) ){
-			calculaTrayectoria();
- 			//System.out.println("run del misil");
-			//mapa.sigueDisparo(this);
+		while((!isMuerto()) && (this.x < mapa.getWidth() && this.x > 0) && (this.y > 0 && this.y < mapa.getHeight())){
+ 			calculaTrayectoria();
+ 			System.out.println("run del misil "+this.getName()+", estado: "+this.getState());
 
 			try {sleep(10);} 
 			catch (InterruptedException e) {e.printStackTrace();}
 		}
 
- 		eliminaMisil(this);
+		eliminaMisil(this);
+		System.out.println("quedan " +mapa.getListaMisiles().size()+" misiles vivos");
+		System.out.println("Misil "+this.getName()+", estado: "+this.getState());
 	}
 
-	private synchronized void eliminaMisil(Misil misil) {
+	public synchronized void eliminaMisil(Misil misil) {
+		System.out.println("Eliminar el misil "+this.getName()+", estado: "+this.getState());
 		if(!isMuerto()) misil.setMuerto(true);
 		mapa.getListaAsteroides().remove(misil);
-
-		System.out.println("quedan " +mapa.getListaMisiles().size()+" misiles vivos");
 	}
 
 	public synchronized void pintaMisil (Graphics2D g2d){
 		g2d.setColor(Color.green);
-		//calculaTrayectoria();
 		g2d.fillOval((int)this.x, (int)this.y, Misil.width, Misil.height); 		//pintar Misil
 	}
 
@@ -92,7 +91,7 @@ public class Misil extends Thread {
 		this.y += this.Vf.getY();	//asigna posicion Y
 		//mapa.sigueDisparo(this);
 	}
-	
-	
+
+
 
 }

@@ -63,12 +63,7 @@ public class MyVector {
 		MyVector v2 = new MyVector(this.x + v1.x, this.y + v1.y);
 		return v2;
 	}
-	
-	// Subtract vector v1 from v .....
-	public MyVector RestaVectores(MyVector v1) {
-		MyVector v2 = new MyVector(this.x - v1.x, this.y - v1.y);
-		return v2;
-	}
+
 	
 	// Convert vector to a string ...
 	public String toString() {

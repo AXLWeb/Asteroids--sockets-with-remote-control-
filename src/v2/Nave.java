@@ -15,18 +15,7 @@ public class Nave extends Thread  {
 
 	private static final double DECEL_FACTOR = 0.015;
 	private static final double aceleracion = 0.25;
-
-/*
-	private static final String imagePath = "/img/nave1.png";
-	private URL imgNave = Launcher.class.getResource(imagePath); // busca ruta en lo compilado
-	private ImageIcon icoNave = new ImageIcon(imgNave, "Nave imagen");
-	private Image NaveImg = icoNave.getImage();
-*/
-	
-	//private Image displayParada = ImageIO.read(Main.class.getResource("/R/nave.png"));
-	
 	private Image NaveImg,fuegoImg;
-
 	private Mapa mapa;
 	private Misil misil;
 	private Generador generator;
@@ -183,10 +172,9 @@ public class Nave extends Thread  {
 	}
 
 	public synchronized void disparar() {
-		if(!getDisparo()) {
-			setDisparo(true);
-			generator.generaMisil(this);
-		}
+		//if(!getDisparo()) setDisparo(true);
+		
+		generator.generaMisil(this);
 	}
 
 	public void pintaNave(Graphics2D g2d) {
