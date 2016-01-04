@@ -108,8 +108,6 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 		//else if(misilChocaAsteroide(misil_actual)) misil.setMuerto(true); +getListaMisiles().remove(misil);
 
 		//if(misilChocaNave(misil_actual)) misil.setMuerto(true);
-		
-		System.out.println("Lista misiles "+ getListaMisiles().size());	//por poner esto ya me peta
 
 	}
 
