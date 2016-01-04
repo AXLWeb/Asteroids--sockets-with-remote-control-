@@ -19,7 +19,7 @@ public class Misil extends Thread {
 	//Constantes
 	private static final int width = 7;
 	private static final int height = 7;
-	private static final double aceleracion = 1.5;
+	private static final double aceleracion = 15;
 
 
 	///////////////	setters & getters	//////////////////////////////
@@ -52,22 +52,11 @@ public class Misil extends Thread {
 
 	public void run() {
 
-		while((!isMuerto()) && (this.x < mapa.getWidth() && this.x > 0) && (this.y > 0 && this.y < mapa.getHeight())){
+		while((!isMuerto()) && (this.getX() < mapa.getWidth() && this.getX() > 0) && (this.getY() > 0 && this.getY() < mapa.getHeight())){
  			calculaTrayectoria();
- 			//System.out.println("run del misil "+this.getName()+", estado: "+this.getState());
-
-			try {sleep(400);} 
+			try {sleep(40);} 
 			catch (InterruptedException e) {e.printStackTrace();}
 		}
-
-		eliminaMisil(this);
-
-	}
-
-	public synchronized void eliminaMisil(Misil misil) {
-		System.out.println("Eliminar el misil "+this.getName()+", estado: "+this.getState());
-		if(!isMuerto()) misil.setMuerto(true);
-		//mapa.getListaAsteroides().remove(misil);
 	}
 
 	public synchronized void pintaMisil (Graphics2D g2d){
@@ -75,12 +64,13 @@ public class Misil extends Thread {
 		g2d.fillOval((int)this.x, (int)this.y, Misil.width, Misil.height); 		//pintar Misil
 	}
 
+	/**
+	 * Calcula trayectoria de Misil vivo
+	 */
 	public synchronized void calculaTrayectoria() {
-		this.x += this.Vf.getX();	//asigna posicion X 
+		this.x += this.Vf.getX();	//asigna posicion X
 		this.y += this.Vf.getY();	//asigna posicion Y
 		mapa.sigueDisparo(this);
 	}
-
-
 
 }
