@@ -172,8 +172,7 @@ public class Nave extends Thread  {
 	}
 
 	public synchronized void disparar() {
-		//if(!getDisparo()) setDisparo(true);
-		
+		if(!getDisparo()) setDisparo(true);
 		generator.generaMisil(this);
 	}
 

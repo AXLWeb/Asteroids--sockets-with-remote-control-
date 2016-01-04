@@ -25,28 +25,18 @@ public class Misil extends Thread {
 	///////////////	setters & getters	//////////////////////////////
 	public Nave getNave() {return nave;}
 	public void setNave(Nave nave) {this.nave = nave;}
-	public int getWidth() {return width;}
-	public int getHeight() {return height;}
-	public double getX() {return x;}
-	public void setX(double x) {this.x = x;}
-	public double getY() {return y;}
-	public void setY(double y) {this.y = y;}
-	public boolean isMuerto() {return this.muerto;}
-	public void setMuerto(boolean b) {this.muerto = b;}
-	
-	public Rectangle getPosicion() {return new Rectangle((int)getX(), (int)getY(), width, height);} //devuelve posicion
-	
+	public Enemigo getEnemigo() {return enemigo;}
+	public void setEnemigo(Enemigo e) {this.enemigo = e;}
+	public synchronized int getWidth() {return width;}
+	public synchronized int getHeight() {return height;}
+	public synchronized double getX() {return x;}
+	public synchronized void setX(double x) {this.x = x;}
+	public synchronized double getY() {return y;}
+	public synchronized void setY(double y) {this.y = y;}
+	public synchronized boolean isMuerto() {return this.muerto;}
+	public synchronized void setMuerto(boolean b) {this.muerto = b;}
+	public synchronized Rectangle getPosicion() {return new Rectangle((int)getX(), (int)getY(), width, height);} //devuelve posicion
 
-	//Constructor Misil de Enemigo
-	public Misil(Enemigo enemigo){
-		this.enemigo = enemigo;
-		this.x = enemigo.getPosX() + enemigo.getWidth()/2;
-		this.y = enemigo.getPosY() + enemigo.getHeight()/2;
-		this.muerto = false;
-		this.Vdir = new MyVector(Math.cos(Math.toRadians(enemigo.getRotation())), Math.sin(Math.toRadians(enemigo.getRotation())));	//vector director
-		this.Vimpulso = this.Vdir.MultiplicaVectores(Misil.aceleracion);	//Calcula Vector Impulso
-		this.Vf = this.Vimpulso;
-	}
 
 	//Constructor Misil de Nave
 	public Misil(Nave nave){
@@ -64,21 +54,20 @@ public class Misil extends Thread {
 
 		while((!isMuerto()) && (this.x < mapa.getWidth() && this.x > 0) && (this.y > 0 && this.y < mapa.getHeight())){
  			calculaTrayectoria();
- 			System.out.println("run del misil "+this.getName()+", estado: "+this.getState());
+ 			//System.out.println("run del misil "+this.getName()+", estado: "+this.getState());
 
-			try {sleep(10);} 
+			try {sleep(400);} 
 			catch (InterruptedException e) {e.printStackTrace();}
 		}
 
 		eliminaMisil(this);
-		System.out.println("quedan " +mapa.getListaMisiles().size()+" misiles vivos");
-		System.out.println("Misil "+this.getName()+", estado: "+this.getState());
+
 	}
 
 	public synchronized void eliminaMisil(Misil misil) {
 		System.out.println("Eliminar el misil "+this.getName()+", estado: "+this.getState());
 		if(!isMuerto()) misil.setMuerto(true);
-		mapa.getListaAsteroides().remove(misil);
+		//mapa.getListaAsteroides().remove(misil);
 	}
 
 	public synchronized void pintaMisil (Graphics2D g2d){
@@ -89,7 +78,7 @@ public class Misil extends Thread {
 	public synchronized void calculaTrayectoria() {
 		this.x += this.Vf.getX();	//asigna posicion X 
 		this.y += this.Vf.getY();	//asigna posicion Y
-		//mapa.sigueDisparo(this);
+		mapa.sigueDisparo(this);
 	}
 
 

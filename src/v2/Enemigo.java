@@ -81,7 +81,7 @@ public class Enemigo extends Thread{
 		}
 		//Cuando Enemigo muere, se elimina del AL
 		this.muerto = true;
-		this.mapa.getListaEnemigos().remove(this);
+		//this.mapa.getListaEnemigos().remove(this);
 	}
 	
 	
@@ -132,21 +132,6 @@ public class Enemigo extends Thread{
 		//g.fillRect((int)getPosX(), (int)getPosY(), this.getWidth(), this.getHeight());
 		g.drawImage(enemigoImg, (int)this.getPosX(), (int)this.getPosY(), null);
 	}
-
-
-	/*
-	public void pintaNave(Graphics2D g2d) {
-		Graphics2D g = (Graphics2D) g2d.create();
-		g.rotate(Math.toRadians(getRotation()), this.getPosX() + this.getWidth()/2, this.getPosY() + this.getHeight()/2 );
-
-		if(getPulsado()) {
-			//g.fillRect((int)getPosX(), (int)getPosY(), this.getWidth(), this.getHeight());
-			g.drawImage(fuegoImg, (int)this.getPosX(), (int)this.getPosY()+8, null);
-			g.drawImage(NaveImg, (int)this.getPosX(), (int)this.getPosY(), null);
-		}
-		else g.drawImage(NaveImg, (int)this.getPosX(), (int)this.getPosY(), null);
-	}
-	*/
 
 }
 

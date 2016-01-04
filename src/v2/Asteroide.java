@@ -91,7 +91,7 @@ public class Asteroide extends Thread{
 
 	public void run() {
 		while(!isMuerto()){
-			mapa.calculaLimitesdelMapa(this);
+			//mapa.calculaLimitesdelMapa(this);
 			movimiento();
 
 			try {sleep(20);} 
@@ -103,9 +103,9 @@ public class Asteroide extends Thread{
 
 	private synchronized void eliminaAsteroide(Asteroide asteroide) {
 		if(!isMuerto()) asteroide.setMuerto(true);
-		mapa.getListaAsteroides().remove(asteroide);
+		//mapa.getListaAsteroides().remove(asteroide);
 
-		System.out.println("quedan " +mapa.getListaAsteroides().size()+" asteroides vivos");
+		//System.out.println("quedan " +mapa.getListaAsteroides().size()+" asteroides vivos");
 	}
 
 	public synchronized void movimiento() {

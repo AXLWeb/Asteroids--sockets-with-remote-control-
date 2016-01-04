@@ -12,9 +12,8 @@ public class Launcher {
 
 /**
  //TODO:
-	Pintar Misil enemigo ( = null )
-	Cuando 1 misil choca = MUERE !
-	Poner img Asteroide pequeña
-	decelerar nave
-	Al matar TODOS los asteroides (o los hijos de) Nave se queda en bucle disparando
+  *
+  *
+  *
+  *
 **/
