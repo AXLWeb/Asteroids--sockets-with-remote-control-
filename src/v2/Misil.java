@@ -52,11 +52,15 @@ public class Misil extends Thread {
 
 	public void run() {
 
-		while((!isMuerto()) && (this.getX() < mapa.getWidth() && this.getX() > 0) && (this.getY() > 0 && this.getY() < mapa.getHeight())){
- 			calculaTrayectoria();
-			try {sleep(40);} 
-			catch (InterruptedException e) {e.printStackTrace();}
+		try{
+			while((!isMuerto()) && (this.getX() < mapa.getWidth() && this.getX() > 0) && (this.getY() > 0 && this.getY() < mapa.getHeight())){
+			//while(!isMuerto()){
+	 			calculaTrayectoria();
+				try {sleep(40);} 
+				catch (InterruptedException e) {e.printStackTrace();}
+			}
 		}
+		catch(Exception e){e.printStackTrace();}
 	}
 
 	public synchronized void pintaMisil (Graphics2D g2d){

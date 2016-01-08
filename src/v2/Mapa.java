@@ -15,28 +15,26 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Stack;
-
 import javax.sql.rowset.spi.SyncResolver;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
+
 public class Mapa extends Canvas implements Runnable, KeyListener {
 
+	private static final String imagePath="/img/space_background.jpg";
+	private URL imgFondo = Mapa.class.getResource(imagePath); 
+	private ImageIcon icoFondo = new ImageIcon(imgFondo);
+	private Image fondo = icoFondo.getImage();
 	private static final long serialVersionUID = 1L;
 	private static Thread t;
 	private Nave nave;
 	private Enemigo enemigo;
 	private Generador generator;
 	private int max_Asteroides;
-	private Stack<Misil> listaMisiles = new Stack<>();	//Stack?
+	private Stack<Misil> listaMisiles = new Stack<>();
 	private Stack<Asteroide> listaAsteroides = new Stack<>();
 	private Stack<Enemigo> listaEnemigos = new Stack<>();
-
-	private static final String imagePath="/img/space_background.jpg";
-	private URL imgFondo = Mapa.class.getResource(imagePath); 
-	private ImageIcon icoFondo = new ImageIcon(imgFondo);
-	private Image fondo = icoFondo.getImage();
-
 	private int contAsteroidesMuertos;
 
 	///////////////	setters & getters	//////////////////////////////
@@ -46,6 +44,8 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 	public Mapa getMapa() {return this;}
 	public int getMax_Asteroides(){return this.max_Asteroides;}
 	public Stack<Misil> getListaMisiles() {return this.listaMisiles;}
+	public Stack<Asteroide> getListaAsteroides() {return listaAsteroides;}
+	public Stack<Enemigo> getListaEnemigos() {return listaEnemigos;}
 
 	@Override
 	public Dimension getPreferredSize() {return new Dimension(getWidth(), getHeight());}
@@ -59,7 +59,7 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 		setFocusable(true);
 
 		//inicializamos propiedades del Mapa
-		this.max_Asteroides = 0;
+		this.max_Asteroides = 2;
 		this.addKeyListener(this);
 		this.generator = g;
 		this.contAsteroidesMuertos=0;
@@ -93,24 +93,95 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 	 * Comprueba si el misil choca o debe morir
 	 */
 	public void sigueDisparo(Misil misil) {
-		//TODO: ESTA FUNCION PETA EL PROGRAMA
-		//System.out.println("En Mapa, el misil es "+misil.toString());
-
 		Rectangle misil_actual = misil.getPosicion();	//posicion del misil actual
-		System.out.println("Posicion actual del misil: "+ misil_actual);
-		System.out.println(" ");
+		//System.out.println("Posicion actual del misil: "+ misil_actual);
+		//System.out.println(" ");
 
 		if(misil.getX() > (this.getWidth()) || (misil.getX() < 0) ) misil.setMuerto(true);
 		else if(misil.getY() > (this.getHeight()) || (misil.getY() < 0) ) misil.setMuerto(true);
+		
+		//else if(misilChocaAsteroide(misil_actual)) misil.setMuerto(true);
 
-		//else if(misilChocaEnemigo(misil_actual)) misil.setMuerto(true); +getListaMisiles().remove(misil);
-
-		//else if(misilChocaAsteroide(misil_actual)) misil.setMuerto(true); +getListaMisiles().remove(misil);
+		//else if(misilChocaEnemigo(misil_actual)) misil.setMuerto(true);
 
 		//if(misilChocaNave(misil_actual)) misil.setMuerto(true);
-
 	}
 
+/*
+	private synchronized boolean misilChocaEnemigo(Rectangle misil_actual) {
+		//Comprueba si Misil choca con algun Enemigo
+		boolean misil_muere=false;
+		for(int i=0; i<getListaEnemigos().size(); i++){
+			Rectangle enemigo_actual = getListaEnemigos().get(i).getPosicion();
+			if(chocan2Objetos(misil_actual, enemigo_actual)){
+				//System.out.println("Misil choca con Enemigo");
+				getListaEnemigos().get(i).setMuerto(true);
+				misil_muere = true;
+			}
+		}
+		return misil_muere;
+	}
+*/
+
+	protected synchronized boolean misilChocaAsteroide(Rectangle misil_actual) {
+		//Comprueba si Misil choca con algun Asteroide
+		boolean misil_muere=false;
+
+		for(int j=0; j < getListaAsteroides().size(); j++){
+			Rectangle asteroide_actual = getListaAsteroides().get(j).getPosicion();
+			//TODO: problema es el FOR...
+			System.out.println("xxxxxxxxxxxxx"+j);
+
+			if(chocan2Objetos(misil_actual,asteroide_actual)){
+				System.out.println("Misil choca con Asteroide");
+				/*
+				getListaAsteroides().get(j).setMuerto(true);
+				misil_muere = true;
+				double sk = getListaAsteroides().get(j).getScale();
+				
+				contAsteroidesMuertos++;
+
+				//Crear 2 new Asteroides + pequeños
+				if(sk > 0.25 && getListaAsteroides().get(j).isMuerto()) {
+					//generator.generar2Asteroides(getListaAsteroides().get(j));
+					System.out.println("zzzzzzzzzzzzzzzzzzzz");
+				}
+				*/
+			}
+		}
+		return misil_muere;
+	}
+
+	/**
+	 * Comprueba si el objeto sale de los límites del mapa
+	 * @param movil
+	 */
+	public void calculaLimitesdelMapa(Nave nave, Asteroide asteroide, Enemigo e){
+		//Control al salir del mapa de la >>> Nave <<<
+		if(nave != null){
+			if(nave.getPosX() > (this.getWidth())) nave.setPosX(-80);
+			else if(nave.getPosX() < -80) nave.setPosX(this.getWidth());
+
+			if(nave.getPosY() > (this.getHeight())) nave.setPosY(-40); 
+			else if(nave.getPosY() < -40) nave.setPosY(this.getHeight());
+		}
+		//Control al salir del mapa de la >>> Asteroide <<<
+		else if(asteroide != null){
+			if(asteroide.getPosX() > (this.getWidth())) asteroide.setPosX(-80);
+			else if(asteroide.getPosX() < -80) asteroide.setPosX(this.getWidth());
+
+			if(asteroide.getPosY() > (this.getHeight())) asteroide.setPosY(-40); 
+			else if(asteroide.getPosY() < -40) asteroide.setPosY(this.getHeight());
+		}
+		//Control al salir del mapa de la >>> Enemigo <<<		
+		else if( e != null){
+			if(e.getPosX() > (this.getWidth())) e.setPosX(-80);
+			else if(e.getPosX() < -80) e.setPosX(this.getWidth());
+
+			if(e.getPosY() > (this.getHeight())) e.setPosY(-40); 
+			else if(e.getPosY() < -40) e.setPosY(this.getHeight());
+		}
+	}
 
 	/**
 	 * Comprueba si 2 Objetos chocan entre sí
@@ -118,19 +189,6 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 	 */
 	private synchronized boolean chocan2Objetos(Rectangle obj1, Rectangle obj2) {
 		return (obj1.intersects(obj2));
-	}
-
-	/**
-	 * Comprueba si la Nave sale de los límites del mapa
-	 * @param movil
-	 */
-	public void calculaLimitesdelMapa(Nave nave){
-		//Control al salir del mapa
-		if(nave.getPosX() > (this.getWidth())) nave.setPosX(-80);
-		else if(nave.getPosX() < -80) nave.setPosX(this.getWidth());
-
-		if(nave.getPosY() > (this.getHeight())) nave.setPosY(-40); 
-		else if(nave.getPosY() < -40) nave.setPosY(this.getHeight());
 	}
 
 	@Override
@@ -183,8 +241,8 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 	protected synchronized void paint(){
 		BufferStrategy bs = this.getBufferStrategy();
 		Graphics2D g2d = (Graphics2D) bs.getDrawGraphics();
-
 		g2d.drawImage(fondo, 0, 0, null); 		//pintar img fondo
+/*
 		g2d.setColor(Color.white);
 		g2d.drawString(nave.getRotation() + " grados", 10, 20);		//pinta String info de la rotacion nave
 		g2d.setColor(Color.gray);
@@ -192,13 +250,13 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 		g2d.setColor(Color.white);
 		g2d.fillRect(this.getWidth()-160, 10, nave.getVida(), 10);	//barra vida
 		g2d.drawString(nave.getVida()+"%", this.getWidth()-50, 20);	//pinta % vida
-
+*/
 		pintaMisiles(g2d);
 		pintaNave(g2d);
-	    //pintaAsteroides(g2d);
+	    pintaAsteroides(g2d);
 	    //pintaEnemigos(g2d);
 
-		//muestra los gráficos en el Canvas
+		//muestra TODOS los gráficos en el Canvas
 		g2d.dispose();
 		bs.show();
 	}
@@ -206,10 +264,9 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 	/**
 	 * Pinta la Nave si está viva 
 	 */
-	private void pintaNave(Graphics2D g2d) {
+	private synchronized void pintaNave(Graphics2D g2d) {
 		if(!nave.isMuerto()) nave.pintaNave(g2d);
 	}
-
 
 	/**
 	 * Pinta los misiles vivos en el mapa y elimina los muertos
@@ -217,9 +274,29 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 	private synchronized void pintaMisiles(Graphics2D g2d){
 		if(!getListaMisiles().empty()){
 			for(int i=0; i < getListaMisiles().size(); i++){
+				Misil aux = getListaMisiles().get(i);
 				if(!getListaMisiles().get(i).isMuerto()) getListaMisiles().get(i).pintaMisil(g2d);
-				else getListaMisiles().remove(i);
+				else {
+   					getListaMisiles().remove(i);
+           			i=0;
+				}
 				System.out.println("1-lista misiles: "+ getListaMisiles().size());
+			}
+		}
+	}
+
+	/**
+	 * Pinta Asteroides en el Mapa, y los borra si están muertos
+	 */
+	private synchronized void pintaAsteroides(Graphics2D g2d) {
+		if(getListaAsteroides().size()>0){
+			for(int i=0; i< getListaAsteroides().size(); i++){
+				if(!getListaAsteroides().get(i).isMuerto()) {getListaAsteroides().get(i).pintaAsteroide(g2d);}
+				else{
+					getListaAsteroides().remove(i);
+					i=0;	//repinta desde cero todos los Asteroides
+				}
+				//System.out.println("2-lista Asteroides: "+ getListaAsteroides().size());
 			}
 		}
 	}

@@ -102,7 +102,7 @@ public class Nave extends Thread  {
 	 ******************************************************************/
 
 	public void avanzar() {
-		mapa.calculaLimitesdelMapa(this);
+		mapa.calculaLimitesdelMapa(this, null, null);
 
 		//control de movimiento Nave
 		if(getIzquierda() && getDerecha() && getArriba()){

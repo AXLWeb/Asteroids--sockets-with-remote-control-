@@ -75,7 +75,8 @@ public class Asteroide extends Thread{
 		cargaImagenes();
 		this.width = 76;
 		this.height = 76;
-   		if(this.escala<0.001) this.escala = 1;
+   		//if(this.escala<0.001)
+   		this.escala = 1;
 		this.muerto = false;
 		this.factorRotacion = new Random().nextInt(7 - 2) + 1;
 		this.aceleracion = new Random().nextInt(5 - 1) + 1;
@@ -91,21 +92,11 @@ public class Asteroide extends Thread{
 
 	public void run() {
 		while(!isMuerto()){
-			//mapa.calculaLimitesdelMapa(this);
+			mapa.calculaLimitesdelMapa(null, this, null);
 			movimiento();
-
-			try {sleep(20);} 
+			try {sleep(40);} 
 			catch (InterruptedException e) {e.printStackTrace();}
 		}
-
-		eliminaAsteroide(this);
-	}
-
-	private synchronized void eliminaAsteroide(Asteroide asteroide) {
-		if(!isMuerto()) asteroide.setMuerto(true);
-		//mapa.getListaAsteroides().remove(asteroide);
-
-		//System.out.println("quedan " +mapa.getListaAsteroides().size()+" asteroides vivos");
 	}
 
 	public synchronized void movimiento() {

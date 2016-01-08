@@ -12,7 +12,7 @@ public class Launcher {
 
 /**
  //TODO:
-  *
+  * Eliminar misiles muertos (pintados fuera límites del mapa cuando la nave dispara fuera)
   *
   *
   *
