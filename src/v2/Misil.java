@@ -27,15 +27,15 @@ public class Misil extends Thread {
 	public void setNave(Nave nave) {this.nave = nave;}
 	public Enemigo getEnemigo() {return enemigo;}
 	public void setEnemigo(Enemigo e) {this.enemigo = e;}
-	public synchronized int getWidth() {return width;}
-	public synchronized int getHeight() {return height;}
-	public synchronized double getX() {return x;}
+	public int getWidth() {return width;}
+	public int getHeight() {return height;}
+	public double getX() {return x;}
 	public synchronized void setX(double x) {this.x = x;}
-	public synchronized double getY() {return y;}
+	public double getY() {return y;}
 	public synchronized void setY(double y) {this.y = y;}
-	public synchronized boolean isMuerto() {return this.muerto;}
+	public boolean isMuerto() {return this.muerto;}
 	public synchronized void setMuerto(boolean b) {this.muerto = b;}
-	public synchronized Rectangle getPosicion() {return new Rectangle((int)getX(), (int)getY(), width, height);} //devuelve posicion
+	public Rectangle getPosicion() {return new Rectangle((int)getX(), (int)getY(), getWidth(), getHeight());} //devuelve posicion
 
 
 	//Constructor Misil de Nave
@@ -52,15 +52,11 @@ public class Misil extends Thread {
 
 	public void run() {
 
-		try{
-			while((!isMuerto()) && (this.getX() < mapa.getWidth() && this.getX() > 0) && (this.getY() > 0 && this.getY() < mapa.getHeight())){
-			//while(!isMuerto()){
-	 			calculaTrayectoria();
-				try {sleep(40);} 
-				catch (InterruptedException e) {e.printStackTrace();}
-			}
+		while(!isMuerto()){
+ 			calculaTrayectoria();
+			try {sleep(40);} 
+			catch (InterruptedException e) {e.printStackTrace();}
 		}
-		catch(Exception e){e.printStackTrace();}
 	}
 
 	public synchronized void pintaMisil (Graphics2D g2d){

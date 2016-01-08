@@ -42,21 +42,21 @@ public class Nave extends Thread  {
 	public boolean getDerecha(){return this.derecha;}
 	public boolean getArriba(){return this.arriba;}
 	public boolean getDisparo(){return this.disparo;}
-	public synchronized MyVector getVdir() {return this.Vdir;}
-	public synchronized Rectangle getPosicion() {return new Rectangle((int)getPosX(), (int)getPosY(), getWidth(), getHeight());} //devuelve posicion
-	public synchronized boolean isMuerto(){return this.muerto;}
+	public MyVector getVdir() {return this.Vdir;}
+	public Rectangle getPosicion() {return new Rectangle((int)getPosX(), (int)getPosY(), getWidth(), getHeight());}
+	public boolean isMuerto(){return this.muerto;}
 	public synchronized void setMuerto(boolean b){this.muerto = b;}
-	public synchronized double getPosX() {return x;}
+	public double getPosX() {return x;}
 	protected synchronized void setPosX(int x){this.x = x;}
-	public synchronized double getPosY() {return y;}
+	public double getPosY() {return y;}
 	protected synchronized void setPosY(int y){this.y = y;}
-	protected synchronized int getWidth() {return this.width;}
-	protected synchronized int getHeight() {return this.height;}
+	protected int getWidth() {return this.width;}
+	protected int getHeight() {return this.height;}
 	protected synchronized void setDerecha(boolean b){this.derecha=b;}
-	protected synchronized int getVida(){return this.vida;}
+	protected int getVida(){return this.vida;}
 	protected synchronized void setVida(int i){this.vida=i;}
-	
-	
+
+
 	/////////////// Constructor de Nave	///////////////
 	public Nave(Mapa mapa, Generador g) {
 		cargaImgs();

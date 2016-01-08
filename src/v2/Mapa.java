@@ -19,7 +19,6 @@ import javax.sql.rowset.spi.SyncResolver;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
-
 public class Mapa extends Canvas implements Runnable, KeyListener {
 
 	private static final String imagePath="/img/space_background.jpg";
@@ -100,15 +99,15 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 		if(misil.getX() > (this.getWidth()) || (misil.getX() < 0) ) misil.setMuerto(true);
 		else if(misil.getY() > (this.getHeight()) || (misil.getY() < 0) ) misil.setMuerto(true);
 		
-		//else if(misilChocaAsteroide(misil_actual)) misil.setMuerto(true);
+		else if(misilChocaAsteroide(misil_actual)) misil.setMuerto(true);
 
-		//else if(misilChocaEnemigo(misil_actual)) misil.setMuerto(true);
+		else if(misilChocaEnemigo(misil_actual)) misil.setMuerto(true);
 
 		//if(misilChocaNave(misil_actual)) misil.setMuerto(true);
 	}
 
-/*
-	private synchronized boolean misilChocaEnemigo(Rectangle misil_actual) {
+
+	private boolean misilChocaEnemigo(Rectangle misil_actual) {
 		//Comprueba si Misil choca con algun Enemigo
 		boolean misil_muere=false;
 		for(int i=0; i<getListaEnemigos().size(); i++){
@@ -121,16 +120,15 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 		}
 		return misil_muere;
 	}
-*/
 
-	protected synchronized boolean misilChocaAsteroide(Rectangle misil_actual) {
+
+	protected boolean misilChocaAsteroide(Rectangle misil_actual) {
 		//Comprueba si Misil choca con algun Asteroide
 		boolean misil_muere=false;
 
 		for(int j=0; j < getListaAsteroides().size(); j++){
 			Rectangle asteroide_actual = getListaAsteroides().get(j).getPosicion();
-			//TODO: problema es el FOR...
-			System.out.println("xxxxxxxxxxxxx"+j);
+			//System.out.println("xxxxxxxxxxxxx"+j);
 
 			if(chocan2Objetos(misil_actual,asteroide_actual)){
 				System.out.println("Misil choca con Asteroide");
@@ -187,7 +185,7 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 	 * Comprueba si 2 Objetos chocan entre sí
 	 * @return boolean
 	 */
-	private synchronized boolean chocan2Objetos(Rectangle obj1, Rectangle obj2) {
+	private boolean chocan2Objetos(Rectangle obj1, Rectangle obj2) {
 		return (obj1.intersects(obj2));
 	}
 
@@ -280,7 +278,6 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
    					getListaMisiles().remove(i);
            			i=0;
 				}
-				System.out.println("1-lista misiles: "+ getListaMisiles().size());
 			}
 		}
 	}
@@ -296,7 +293,6 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 					getListaAsteroides().remove(i);
 					i=0;	//repinta desde cero todos los Asteroides
 				}
-				//System.out.println("2-lista Asteroides: "+ getListaAsteroides().size());
 			}
 		}
 	}
