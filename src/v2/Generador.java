@@ -22,16 +22,6 @@ public class Generador extends Thread {
 	}
 
 	public void run(){
-
-		/*
-		Image img = null;
-		try {img = ImageIO.read(Launcher.class.getResource("/img/asteroides/1.png"));} 
-		catch (IOException e) {e.printStackTrace();}
-		MyVector Vf = new MyVector(0.0, 0.0);
-		Asteroide asteroid = new Asteroide(mapa, 1, 1, 50, 50, Vf, img,75,75);		//muerto ficticio
-		generar2Asteroides(asteroid);
-		*/
-
 		while(true){
 			if(mapa.getListaAsteroides().size() < mapa.getMax_Asteroides() ){
 				generaAsteroide();
@@ -47,13 +37,16 @@ public class Generador extends Thread {
 		nave.start();
 	}
 
-	protected synchronized void generaMisil(Nave nave){
-		Misil misil = new Misil(nave);
-		mapa.getListaMisiles().add(misil);	//lo añade al AL de misiles
-		misil.start();
+	protected void generaMisil(Nave nave){
+		//TODO: max 4 disparos seguidos
+		if(mapa.getContadorDisparos()<4){
+			Misil misil = new Misil(nave);
+			mapa.getListaMisiles().add(misil);	//lo añade al AL de misiles
+			misil.start();
+		}
 	}
 	
-	protected synchronized void generaAsteroide(){
+	protected void generaAsteroide(){
 		System.out.println("Hay "+mapa.getListaAsteroides().size()+" asteroides creados");
 		if(mapa.getListaAsteroides().size() < mapa.getMax_Asteroides()){
 			Asteroide asteroid = new Asteroide(mapa);
@@ -63,11 +56,12 @@ public class Generador extends Thread {
 		}
 	}
 
-	private synchronized double devuelveEscala(double scale) {
+	private double devuelveEscala(double scale) {
 		double escala=0;
 		if(scale>0.001 && scale<0.3) escala = 0.25;
 		else if(scale>0.3 && scale<0.6) escala = 0.5;
 		else if(scale>0.6) escala = 1;
+		System.out.println("escala: "+escala);
 		return escala;
 	}
 
@@ -86,7 +80,7 @@ public class Generador extends Thread {
 		Image img = asteroide.getImg();
 		MyVector Vact = asteroide.getVf();
 		System.out.println("Padre murio en "+posicion+" con escala= "+escala+" y acel "+acel);
-		//TODO: EN EL MISMO LUGAR DONDE MURIO SU PADRE y con el MISMO VECTOR
+		//TODO: EN EL MISMO LUGAR DONDE MURIO SU PADRE y con la RESTA de VECTORES
 		escala /=2;	//divide escala del Padre /2
 		double x = posicion.getX();
 		double y = posicion.getY();
@@ -95,18 +89,17 @@ public class Generador extends Thread {
 		System.out.println("Nuevas posiciones "+ x +", "+ y);
 
 		Asteroide asteroid1 = new Asteroide(mapa, escala, acel, x, y, Vact, img, width/2, height/2);
-		//Asteroide asteroid2 = new Asteroide(mapa, escala, acel, x, y);
-		mapa.getMapa().getListaAsteroides().push(asteroid1);
-		//mapa.getMapa().getListaAsteroides().push(asteroid2);
+		Asteroide asteroid2 = new Asteroide(mapa, escala, acel, x, y, Vact, img, width/2, height/2);
+		mapa.getMapa().getListaAsteroides().add(asteroid1);
+		mapa.getMapa().getListaAsteroides().add(asteroid2);
 
 		System.out.println("Hay "+mapa.getListaAsteroides().size()+" asteroides vivos");
 		asteroid1.start();
-		//asteroid2.start();
+		asteroid2.start();
 	}
 
-	
-	
-	protected synchronized void generaEnemigo(){
+
+	protected void generaEnemigo(){
 		Enemigo enemigo = new Enemigo(mapa, this);
 		mapa.setEnemy(enemigo);
 		mapa.getMapa().getListaEnemigos().add(enemigo);

@@ -12,8 +12,9 @@ public class Launcher {
 
 /**
  //TODO:
-  * Eliminar misiles muertos (pintados fuera límites del mapa cuando la nave dispara fuera)
-  * Hay alguna funcion syncronized q bloquea el PINTADO del mapa, y asi bloquea el resto...
+  * 
   *
+  * Hay alguna funcion syncronized q bloquea el PINTADO del mapa, y asi bloquea el resto...
+  * Si 1 misil choca 1 Asteroide, eliminarlo, e impedir q el resto chocque con el mismo
   *
 **/

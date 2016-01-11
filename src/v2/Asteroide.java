@@ -18,12 +18,10 @@ public class Asteroide extends Thread{
 	protected int width;
 	protected int height;
 	protected boolean muerto;
-	//private static Mapa mapa;
 	private double x, y, aceleracion, rotation, factorRotacion, escala;
 	private MyVector Vdir, Vimpulso, Vf, Vact;
 	private Mapa mapa;
-	private Image asteroide0, asteroide1, asteroide2, asteroide3;
-	private Image imgAsteroide;
+	private Image imgAsteroide, asteroide0, asteroide1, asteroide2, asteroide3;
 	protected Stack<Image> listaImgAsteroides = new Stack<>();
 
 	///////////////	setters & getters	//////////////////////////////	
@@ -42,7 +40,7 @@ public class Asteroide extends Thread{
 	public MyVector getVf() {return this.Vact;}
 	public Image getImg() {return this.imgAsteroide;}
 
-	
+
 	//Constructor para cuando se divide el Asteroide
 	public Asteroide(Mapa mapa, double escala, double a, double x, double y, MyVector Vant, Image img, int width, int height){
 		cargaImagenes();
@@ -75,7 +73,6 @@ public class Asteroide extends Thread{
 		cargaImagenes();
 		this.width = 76;
 		this.height = 76;
-   		//if(this.escala<0.001)
    		this.escala = 1;
 		this.muerto = false;
 		this.factorRotacion = new Random().nextInt(7 - 2) + 1;
@@ -106,13 +103,13 @@ public class Asteroide extends Thread{
 		if(rotation > 359) this.rotation = 1;
 		this.rotation += factorRotacion;		
 	}
-	
+
 	public synchronized void pintaAsteroide(Graphics2D g2d){
 		Graphics2D g = (Graphics2D) g2d.create();	//crea el objeto a partir de otro graphics
 		g.setColor(Color.red);
-		g.fillRect((int)x,(int)y,getWidth(), getHeight());
+		//g.fillRect((int)x,(int)y,getWidth(), getHeight());
 		g.rotate(Math.toRadians(getRotation()), this.getPosX() + this.width/2, this.getPosY() + this.height/2 );
-		g.drawImage(imgAsteroide, (int)this.getPosX(), (int)this.getPosY(), null);
+		g.drawImage(imgAsteroide, (int)this.getPosX(), (int)this.getPosY(), getWidth(), getHeight(), null);
 	}
 
 	/**

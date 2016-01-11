@@ -36,11 +36,11 @@ public class Nave extends Thread  {
 	public Mapa getMapa(){return this.mapa;}
 	public Misil getMisil(){return this.misil;}
 	protected void setIzquierda(boolean b){this.izquierda=b;}
-	protected void setArriba(boolean b){this.arriba = b;}
+	protected void setImpulso(boolean b){this.arriba = b;}
 	protected void setDisparo(boolean b){this.disparo = b;}
 	public boolean getIzquierda(){return this.izquierda;}
 	public boolean getDerecha(){return this.derecha;}
-	public boolean getArriba(){return this.arriba;}
+	public boolean getImpulso(){return this.arriba;}
 	public boolean getDisparo(){return this.disparo;}
 	public MyVector getVdir() {return this.Vdir;}
 	public Rectangle getPosicion() {return new Rectangle((int)getPosX(), (int)getPosY(), getWidth(), getHeight());}
@@ -70,7 +70,7 @@ public class Nave extends Thread  {
 		this.velMax = 10;
 		this.velMin = 0.5;
 		this.vida = 100;	//empieza 100% de vida
-		this.pulsado = false;
+		this.pulsado = false;	//des-activa inercia
 		this.muerto = false;
 		this.contaSleeps=0;
 		this.rotation = new Random().nextInt(360-0);	//random de ángulo inicial
@@ -84,13 +84,9 @@ public class Nave extends Thread  {
 	public void run() {
 
 		while(!muerto){
-			if(getArriba()) avanzar();
+			if(getPulsado()) avanzar();	//activa inercia
 
-			try {
-				sleep(60);
-				contaSleeps++;	//contador sleeps para cambiar de img +1
-				//System.out.println("sleeps: "+contaSleeps);
-			}
+			try {sleep(60);}
 			catch (InterruptedException e) {e.printStackTrace();}
 		}
 	}
@@ -104,33 +100,47 @@ public class Nave extends Thread  {
 	public void avanzar() {
 		mapa.calculaLimitesdelMapa(this, null, null);
 
+		//if(!getIzquierda() && !getDerecha()) recalculaVelocidad();
+		if(getImpulso()) impulsaNave();
+		else if(getDerecha()) subeRotation();
+		else if(getIzquierda()) bajaRotation();
+
+		recalculaVelocidad();
+
+
+		/*
 		//control de movimiento Nave
-		if(getIzquierda() && getDerecha() && getArriba()){
+		if(getIzquierda() && getDerecha() && getImpulso()){
 			//Avanza. No gira
 			recalculaVelocidad();
 		}
-		else if(!getIzquierda() && getDerecha() && getArriba()){
+		else if(!getIzquierda() && getDerecha() && getImpulso()){
 			//avanza + drxa
-			recalculaVelocidad();
-			bajaRotation();
-		}
-		else if(getIzquierda() && !getDerecha() && getArriba()){
-			//avanza + izqda
 			recalculaVelocidad();
 			subeRotation();
 		}
-		else if(!getIzquierda() && !getDerecha() && getArriba()){
+		else if(getIzquierda() && !getDerecha() && getImpulso()){
+			//avanza + izqda
+			recalculaVelocidad();
+			bajaRotation();
+		}
+		else if(!getIzquierda() && !getDerecha() && getImpulso()){
 			//avanza recto
 			recalculaVelocidad();
 		}
-		else if(!getIzquierda() && !getDerecha() && !getArriba()){
+		else if(!getIzquierda() && !getDerecha() && !getImpulso()){
 			recalculaVelocidad();
 		}
+		*/
+	}
+
+	private void impulsaNave() {
+		this.Vimpulso = this.Vdir.MultiplicaVectores(aceleracion);		//Calcula Vector Impulso
 	}
 
 	public void subeRotation() {
-		setIzquierda(true);
-		if(!getDerecha() && getIzquierda()){
+		setDerecha(true);
+		if(getDerecha() && !getIzquierda()){
 			if(getRotation() > 350)	setRotation(0);
 			else this.rotation+=5;
 
@@ -139,8 +149,8 @@ public class Nave extends Thread  {
 	}
 
 	public void bajaRotation() {
-		setDerecha(true);
-		if(!getIzquierda() && getDerecha()){
+		setIzquierda(true);
+		if(getIzquierda() && !getDerecha()){
 			if(getRotation() < 1) setRotation(355);
 			else this.rotation-=5;
 
@@ -149,39 +159,35 @@ public class Nave extends Thread  {
 	}
 	
 	public void recalculaVelocidad(){
-		this.Vdir = new MyVector(Math.cos(Math.toRadians(getRotation())), Math.sin(Math.toRadians(getRotation())));	//vector director
-		this.Vimpulso = this.Vdir.MultiplicaVectores(aceleracion);		//Calcula Vector Impulso
+		//this.Vimpulso = this.Vdir.MultiplicaVectores(aceleracion);		//Calcula Vector Impulso
 		this.Vf = this.Vact.SumaVectores(Vimpulso);						//calcula Vector final
 
-		//double velActual = Vf.getCurrentModule();
-
-		if(!getPulsado()){
+		if(!getImpulso()){
 			//resta velActual hasta llegar velMin
 			if(Vf.getCurrentModule() > velMin) {
 				//TODO: decelerar nave hasta velMin...
 				Vf.decelerar(DECEL_FACTOR);
 			}
 		}
-		else if(getPulsado()){
+		else if(getImpulso()){
 			if(Vf.getCurrentModule() > velMax) Vf.readjustModule(velMax);
 		}
+
 		this.x += this.Vf.getX();	//asigna posicion X a la Nave
 		this.y += this.Vf.getY();	//asigna posicion Y a la Nave
-		//System.out.println("Vector final => "+this.Vf.toString());
 		this.Vact = this.Vf;		//Vector actual = Vector final
 	}
 
 	public synchronized void disparar() {
-		if(!getDisparo()) setDisparo(true);
-		generator.generaMisil(this);
+		if(getDisparo()) generator.generaMisil(this);
+		setDisparo(false);
 	}
 
 	public void pintaNave(Graphics2D g2d) {
 		Graphics2D g = (Graphics2D) g2d.create();
 		g.rotate(Math.toRadians(getRotation()), this.getPosX() + this.getWidth()/2, this.getPosY() + this.getHeight()/2 );
 
-		if(getPulsado()) {
-			//g.fillRect((int)getPosX(), (int)getPosY(), this.getWidth(), this.getHeight());
+		if(getImpulso()) {
 			g.drawImage(fuegoImg, (int)this.getPosX(), (int)this.getPosY()+8, null);
 			g.drawImage(NaveImg, (int)this.getPosX(), (int)this.getPosY(), null);
 		}

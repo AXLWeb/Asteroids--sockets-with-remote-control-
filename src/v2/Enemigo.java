@@ -130,7 +130,7 @@ public class Enemigo extends Thread{
 		Graphics2D g = (Graphics2D) g2d.create();
 		g.rotate(Math.toRadians(getRotation()), this.getPosX() + this.getWidth()/2, this.getPosY() + this.getHeight()/2 );
 		//g.fillRect((int)getPosX(), (int)getPosY(), this.getWidth(), this.getHeight());
-		g.drawImage(enemigoImg, (int)this.getPosX(), (int)this.getPosY(), null);
+		g.drawImage(enemigoImg, (int)this.getPosX(), (int)this.getPosY(), getWidth(), getHeight(), null);
 	}
 
 }
