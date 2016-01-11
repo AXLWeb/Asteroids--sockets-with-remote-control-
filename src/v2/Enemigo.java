@@ -14,13 +14,12 @@ import javax.swing.ImageIcon;
 public class Enemigo extends Thread{
 
 	private static final double DECEL_FACTOR = 0.015;
-	private static final double aceleracion = 0.25;
 	private Image enemigoImg; 
 	private Mapa mapa;
 	private Misil misil;
 	private Generador generator;
-	private double x, y, velMax, velMin;
-	private int rotation, vida, contaSleeps;
+	private double x, y, velMax, velMin, aceleracion;
+	private int rotation, vida, rotation_inicial, contaSleeps;
 	private boolean pulsado, disparo, muerto, derecha, izquierda, arriba;
 	private MyVector Vdir, Vf, Vact, Vimpulso;
 	private int width, height;
@@ -49,39 +48,37 @@ public class Enemigo extends Thread{
 		cargaImgs();
 		this.generator = g;
 		this.mapa = mapa;
-
 		this.width = 41;
 		this.height = 30;
-		this.x = mapa.getWidth()/2  + 100;
-		this.y = mapa.getHeight()/2 + 100;
 
-		this.velMax = 10;
-		this.velMin = 0.5;
-		this.pulsado = false;
-		this.muerto = false;
+		this.y = new Random().nextInt(mapa.getHeight() - 10) + 10; //Random().nextInt(high-low) + low;
+		this.x = new Random().nextInt(mapa.getWidth() - 10) + 10;	
+		this.aceleracion = new Random().nextInt(5 - 1) + 1;
 		this.contaSleeps=0;
-		//this.rotation = new Random().nextInt(360-0);	//random de ángulo inicial
-		this.rotation = 0;
+		this.rotation_inicial = 0;
+		this.rotation = new Random().nextInt(360-0);	//angulo de movimiento
 		
 		//inicializacion Vectores
 		this.Vact = new MyVector(0, 0);		//Vector actual
-		this.Vdir = new MyVector((int)Math.cos(rotation), (int)Math.sin(rotation));	//vector director
+		this.Vdir = new MyVector(Math.cos(Math.toRadians(this.rotation)),Math.sin(Math.toRadians(this.rotation)));	//vector director
+		this.Vimpulso = this.Vdir.MultiplicaVectores(aceleracion);	//Calcula Vector Impulso
+		this.Vf = this.Vimpulso;
 	}
 
 
 	public void run() {
-		
+
 		while(!muerto){
 			avanzar();
-
-			try {
-				sleep(60);
+			if(contaSleeps > 60) {
+				this.rotation = new Random().nextInt(300-10);	//ángulo movimiento
+				//System.out.println("rotacion  enemigo: "+this.rotation+" Sleeps: "+contaSleeps);
+				contaSleeps=0;
 			}
+
+			try {sleep(60); contaSleeps++;}
 			catch (InterruptedException e) {e.printStackTrace();}
 		}
-		//Cuando Enemigo muere, se elimina del AL
-		this.muerto = true;
-		//this.mapa.getListaEnemigos().remove(this);
 	}
 	
 	
@@ -92,26 +89,29 @@ public class Enemigo extends Thread{
 	 ***************    Métodos propios del Enemigo		***************
 	 ******************************************************************/
 
-	public void avanzar() {
-		//mapa.calculaLimitesdelMapa(this);
- 		//recalculaVelocidad();
+	protected void avanzar() {
+		mapa.calculaLimitesdelMapa(null,null,this);
+ 		recalculaVelocidad();
+ 		mapa.chocaObjeto(this);
 		//disparar();
 	}
 
-	public void recalculaVelocidad(){
-		this.Vdir = new MyVector(Math.cos(Math.toRadians(getRotation())), Math.sin(Math.toRadians(getRotation())));	//vector director
-		this.Vimpulso = this.Vdir.MultiplicaVectores(aceleracion);		//Calcula Vector Impulso
-		this.Vf = this.Vact.SumaVectores(Vimpulso);						//calcula Vector final
+	protected void recalculaVelocidad(){
 
-		if(Vf.getCurrentModule() > velMax) Vf.readjustModule(velMax);
-		
-		this.x += this.Vf.getX();	//asigna posicion X a la Nave
+		//this.rotation = new Random().nextInt(360-0);	//ángulo movimiento
+
+		this.Vdir = new MyVector(Math.cos(Math.toRadians(getRotation())),Math.sin(Math.toRadians(getRotation())));	//vector director
+		this.Vimpulso = this.Vdir.MultiplicaVectores(aceleracion);		//Calcula Vector Impulso
+		this.Vf = this.Vimpulso;
+
+   		this.x += this.Vf.getX();	//asigna posicion X a la Nave
 		this.y += this.Vf.getY();	//asigna posicion Y a la Nave
-		this.Vact = this.Vf;		//Vector actual = Vector final
+
 	}
 
-	public synchronized void disparar() {
+	protected synchronized void disparar() {
 		//TODO: Dispara a la posicion de la Nave + Su Vector Impulso
+		System.out.println("Enemigo dispara");
 		//generator.generaMisil(this);
 	}
 
@@ -126,10 +126,9 @@ public class Enemigo extends Thread{
 		catch (IOException e) {e.printStackTrace();}
 	}
 
-	public void pintaEnemigo(Graphics2D g2d) {
+	protected void pintaEnemigo(Graphics2D g2d) {
 		Graphics2D g = (Graphics2D) g2d.create();
-		g.rotate(Math.toRadians(getRotation()), this.getPosX() + this.getWidth()/2, this.getPosY() + this.getHeight()/2 );
-		//g.fillRect((int)getPosX(), (int)getPosY(), this.getWidth(), this.getHeight());
+		g.rotate(Math.toRadians(rotation_inicial), this.getPosX() + this.getWidth()/2, this.getPosY() + this.getHeight()/2 );
 		g.drawImage(enemigoImg, (int)this.getPosX(), (int)this.getPosY(), getWidth(), getHeight(), null);
 	}
 

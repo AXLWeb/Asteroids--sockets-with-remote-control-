@@ -13,7 +13,7 @@ import javax.swing.ImageIcon;
 
 public class Nave extends Thread  {
 
-	private static final double DECEL_FACTOR = 0.015;
+	private static final double DECEL_FACTOR = 0.05;
 	private static final double aceleracion = 0.25;
 	private Image NaveImg,fuegoImg;
 	private Mapa mapa;
@@ -76,7 +76,7 @@ public class Nave extends Thread  {
 		this.rotation = new Random().nextInt(360-0);	//random de ángulo inicial
 		
 		//inicializacion Vectores
-		this.Vact = new MyVector(0, 0);		//Vector actual
+		this.Vimpulso = this.Vact = new MyVector(0, 0);		//Vector actual
 		this.Vdir = new MyVector((int)Math.cos(rotation), (int)Math.sin(rotation));	//vector director
 		this.Vinercia = new MyVector(DECEL_FACTOR,DECEL_FACTOR);	//vector inercia
 	}
@@ -97,8 +97,9 @@ public class Nave extends Thread  {
 	 ***************    Métodos propios de la Nave		***************
 	 ******************************************************************/
 
-	public void avanzar() {
+	protected void avanzar() {
 		mapa.calculaLimitesdelMapa(this, null, null);
+		//mapa.chocaObjeto(this);
 
 		//if(!getIzquierda() && !getDerecha()) recalculaVelocidad();
 		if(getImpulso()) impulsaNave();
@@ -134,11 +135,7 @@ public class Nave extends Thread  {
 		*/
 	}
 
-	private void impulsaNave() {
-		this.Vimpulso = this.Vdir.MultiplicaVectores(aceleracion);		//Calcula Vector Impulso
-	}
-
-	public void subeRotation() {
+	protected void subeRotation() {
 		setDerecha(true);
 		if(getDerecha() && !getIzquierda()){
 			if(getRotation() > 350)	setRotation(0);
@@ -148,7 +145,7 @@ public class Nave extends Thread  {
 		}
 	}
 
-	public void bajaRotation() {
+	protected void bajaRotation() {
 		setIzquierda(true);
 		if(getIzquierda() && !getDerecha()){
 			if(getRotation() < 1) setRotation(355);
@@ -158,16 +155,13 @@ public class Nave extends Thread  {
 		}
 	}
 	
-	public void recalculaVelocidad(){
-		//this.Vimpulso = this.Vdir.MultiplicaVectores(aceleracion);		//Calcula Vector Impulso
+	protected void recalculaVelocidad(){
 		this.Vf = this.Vact.SumaVectores(Vimpulso);						//calcula Vector final
 
 		if(!getImpulso()){
 			//resta velActual hasta llegar velMin
-			if(Vf.getCurrentModule() > velMin) {
-				//TODO: decelerar nave hasta velMin...
-				Vf.decelerar(DECEL_FACTOR);
-			}
+			this.Vimpulso = new MyVector(0,0);	//resetea Vimpulso
+			if(Vf.getCurrentModule() > velMin) Vf.decelerar(DECEL_FACTOR);
 		}
 		else if(getImpulso()){
 			if(Vf.getCurrentModule() > velMax) Vf.readjustModule(velMax);
@@ -177,13 +171,17 @@ public class Nave extends Thread  {
 		this.y += this.Vf.getY();	//asigna posicion Y a la Nave
 		this.Vact = this.Vf;		//Vector actual = Vector final
 	}
+	
+	private void impulsaNave() {
+		this.Vimpulso = this.Vdir.MultiplicaVectores(aceleracion);		//Calcula Vector Impulso
+	}
 
-	public synchronized void disparar() {
+	protected synchronized void disparar() {
 		if(getDisparo()) generator.generaMisil(this);
 		setDisparo(false);
 	}
 
-	public void pintaNave(Graphics2D g2d) {
+	protected void pintaNave(Graphics2D g2d) {
 		Graphics2D g = (Graphics2D) g2d.create();
 		g.rotate(Math.toRadians(getRotation()), this.getPosX() + this.getWidth()/2, this.getPosY() + this.getHeight()/2 );
 

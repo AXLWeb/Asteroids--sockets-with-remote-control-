@@ -24,9 +24,6 @@ public class MyVector {
 	
 	public void decelerar(double decel_factor){
 		double multi = 1-decel_factor;
-		//System.out.println("multi "+multi);
-		//this.x = x * multi;
-		//this.y = y * multi;
 		this.x *= multi;
 		this.y *= multi;
 	}
@@ -42,7 +39,6 @@ public class MyVector {
 	}
 
 	public double getCurrentModule(){
-		//System.out.println("modulo: "+Math.sqrt(x*x + y*y));
 		return Math.sqrt(x*x + y*y);
 	}
 

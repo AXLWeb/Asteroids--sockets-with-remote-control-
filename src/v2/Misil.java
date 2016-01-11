@@ -59,7 +59,7 @@ public class Misil extends Thread {
 		}
 	}
 
-	public synchronized void pintaMisil (Graphics2D g2d){
+	protected synchronized void pintaMisil (Graphics2D g2d){
 		g2d.setColor(Color.green);
 		g2d.fillOval((int)this.x, (int)this.y, Misil.width, Misil.height); 		//pintar Misil
 	}
@@ -67,7 +67,7 @@ public class Misil extends Thread {
 	/**
 	 * Calcula trayectoria de Misil vivo
 	 */
-	public synchronized void calculaTrayectoria() {
+	protected synchronized void calculaTrayectoria() {
 		this.x += this.Vf.getX();	//asigna posicion X
 		this.y += this.Vf.getY();	//asigna posicion Y
 		mapa.sigueDisparo(this);

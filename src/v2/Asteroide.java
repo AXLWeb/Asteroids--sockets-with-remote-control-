@@ -80,7 +80,7 @@ public class Asteroide extends Thread{
 		this.mapa = mapa;
 		this.y = new Random().nextInt(mapa.getHeight() - 10) + 10; //Random().nextInt(high-low) + low;
 		this.x = new Random().nextInt(mapa.getWidth() - 10) + 10;	
-		
+
 		this.rotation = new Random().nextInt(360 - 0) + 0;
 		this.Vdir = new MyVector(Math.cos(Math.toRadians(this.rotation)),Math.sin(Math.toRadians(this.rotation)));	//vector director
 		this.Vimpulso = this.Vdir.MultiplicaVectores(aceleracion);	//Calcula Vector Impulso
@@ -96,7 +96,7 @@ public class Asteroide extends Thread{
 		}
 	}
 
-	public synchronized void movimiento() {
+	protected synchronized void movimiento() {
 		this.x += this.Vf.getX();	//asigna posicion X 
 		this.y += this.Vf.getY();	//asigna posicion Y
 
@@ -104,7 +104,7 @@ public class Asteroide extends Thread{
 		this.rotation += factorRotacion;		
 	}
 
-	public synchronized void pintaAsteroide(Graphics2D g2d){
+	protected synchronized void pintaAsteroide(Graphics2D g2d){
 		Graphics2D g = (Graphics2D) g2d.create();	//crea el objeto a partir de otro graphics
 		g.setColor(Color.red);
 		//g.fillRect((int)x,(int)y,getWidth(), getHeight());

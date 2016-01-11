@@ -37,13 +37,18 @@ public class Generador extends Thread {
 		nave.start();
 	}
 
-	protected void generaMisil(Nave nave){
-		//TODO: max 4 disparos seguidos
+	protected synchronized void generaMisil(Nave nave){
+		/*
 		if(mapa.getContadorDisparos()<4){
 			Misil misil = new Misil(nave);
 			mapa.getListaMisiles().add(misil);	//lo añade al AL de misiles
 			misil.start();
 		}
+		*/
+		
+		Misil misil = new Misil(nave);
+		mapa.getListaMisiles().add(misil);	//lo añade al AL de misiles
+		misil.start();
 	}
 	
 	protected void generaAsteroide(){
@@ -71,7 +76,7 @@ public class Generador extends Thread {
 	 * Genera 2 nuevos Asteroides a partir del Vector del Padre
 	 * @param asteroide Padre
 	 */
-	public synchronized void generar2Asteroides(Asteroide asteroide) {
+	protected synchronized void generar2Asteroides(Asteroide asteroide) {
 		Rectangle posicion = asteroide.getPosicion();
 		double escala = devuelveEscala(asteroide.getScale());
 		double acel = asteroide.getAceleracion();
@@ -99,7 +104,7 @@ public class Generador extends Thread {
 	}
 
 
-	protected void generaEnemigo(){
+	protected synchronized void generaEnemigo(){
 		Enemigo enemigo = new Enemigo(mapa, this);
 		mapa.setEnemy(enemigo);
 		mapa.getMapa().getListaEnemigos().add(enemigo);
