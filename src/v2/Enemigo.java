@@ -54,7 +54,6 @@ public class Enemigo extends Thread{
 		this.rotation = new Random().nextInt(360-0);	//angulo de movimiento
 		
 		//inicializacion Vectores
-		//this.Vact = new MyVector(0, 0);		//Vector actual
 		this.Vdir = new MyVector(Math.cos(Math.toRadians(this.rotation)),Math.sin(Math.toRadians(this.rotation)));	//vector director
 		this.Vimpulso = this.Vdir.MultiplicaVectores(aceleracion);	//Calcula Vector Impulso
 		this.Vf = this.Vimpulso;
@@ -71,9 +70,6 @@ public class Enemigo extends Thread{
 				disparar();
 				contaSleeps=0;
 			}
-
-			//new Random().nextInt(4000 - 500) + 500;		//Esperar entre 0.5 - 4s
-			
 			try {sleep(60); contaSleeps++; contaDisparos++;}
 			catch (InterruptedException e) {e.printStackTrace();}
 		}

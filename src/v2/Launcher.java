@@ -13,8 +13,9 @@ public class Launcher {
 /**
  //TODO:
   * 
-  * Si nave muere, GAME OVER 
-  * Enemigo disparar en Vdir de la Nave
-  * Enemigo solo dispara al disparar la Nave
-  * Misil enemigo no se pinta automatico
+  * 
+  * 
+  *  
+  * Puntos
+  * Sonido
 **/

@@ -20,7 +20,7 @@ public class Misil extends Thread {
 	private static final int width = 7;
 	private static final int height = 7;
 	private static final int widthEnemy = 5;
-	private static final int heightEnemy = 9;
+	private static final int heightEnemy = 5;
 	private static final double aceleracion = 15;
 
 
@@ -62,17 +62,7 @@ public class Misil extends Thread {
 		this.y = e.getPosY() + e.getHeight()/2;
 		this.muerto = false;
 
-		/*
-		Vector start = (x1, y1) //posicion enemigo
-        Vector end = (x2, y2)	//posicion nave
-
-        double x = x2-x1
-        double y = y2-y1
-
-        double angulo = Math.atan2(y2-y, x2-x);
-		 */
-
-		double angulo = Math.atan2(mapa.getNave().getPosY()-y, mapa.getNave().getPosX()-x);		//Calcula angulo (en radianes) segun la posicion del Enemigo respecto a la Nave
+		double angulo = Math.atan2(mapa.getNave().getPosY()-y, mapa.getNave().getPosX()-x);		//Calcula angulo (en radianes) segun la posicion Nave
 		this.Vdir = new MyVector(Math.cos(angulo), Math.sin(angulo));		//Crea Vector director en base al angulo
 		this.Vimpulso = this.Vdir.MultiplicaVectores(Misil.aceleracion);	//Calcula Vector Impulso
 		this.Vf = this.Vimpulso;
