@@ -14,5 +14,6 @@ public class Launcher {
  //TODO:
   * 
   * Si nave muere, GAME OVER 
+  * Enemigo disparar en Vdir de la Nave
   *
 **/

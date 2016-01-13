@@ -168,6 +168,7 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 
 		else if(misilChocaEnemigo(misil_actual)) misil.setMuerto(true);
 
+		//TODO:
 		//if(misilChocaNave(misil_actual)) misil.setMuerto(true);
 	}
 
@@ -242,7 +243,6 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 
 	/**
 	 * Comprueba si 2 Objetos chocan entre sí
-	 * @return boolean
 	 */
 	private boolean chocan2Objetos(Rectangle obj1, Rectangle obj2) {
 		return (obj1.intersects(obj2));
@@ -254,21 +254,24 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 
 		switch(k){
 			case KeyEvent.VK_RIGHT:
-				nave.subeRotation();
+				if(!nave.isMuerto()) nave.subeRotation();
 				break;
 			case KeyEvent.VK_LEFT:
-				nave.bajaRotation();
+				if(!nave.isMuerto()) nave.bajaRotation();
 				break;
 			case KeyEvent.VK_UP:
-				nave.setImpulso(true);
 				nave.setPulsado(true);
-				nave.avanzar();
+				if(!nave.isMuerto()){
+					nave.setImpulso(true);
+					nave.avanzar();
+				}
 				break;
 			case KeyEvent.VK_SPACE:
-				//TODO: MAX 4 DISPAROS seguidos
-				contDisparo++;
-				if(!nave.getDisparo()) nave.setDisparo(true);
-				if(nave.getDisparo()) nave.disparar();
+				if(!nave.isMuerto()){
+					if(!nave.getDisparo()) nave.setDisparo(true);
+					if(nave.getDisparo()) nave.disparar();
+					contDisparo++;
+				}
 				break;
 			default: break;
 		}
@@ -357,9 +360,8 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 		}
 	}
 
-	
 	/**
-	 * Pinta Enemigos en el Mapa, y los borra si están muertos 
+	 * Pinta Enemigos vivos en el Mapa, y los borra si están muertos 
 	 */
 	private void pintaEnemigos(Graphics2D g2d) {
 		if(!getListaEnemigos().empty()){
