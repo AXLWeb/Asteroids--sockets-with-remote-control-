@@ -101,7 +101,6 @@ public class Nave extends Thread  {
 		mapa.calculaLimitesdelMapa(this, null, null);
 		//mapa.chocaObjeto(this);
 
-		//if(!getIzquierda() && !getDerecha()) recalculaVelocidad();
 		if(getImpulso()) impulsaNave();
 		else if(getDerecha()) subeRotation();
 		else if(getIzquierda()) bajaRotation();
@@ -177,8 +176,9 @@ public class Nave extends Thread  {
 	}
 
 	protected synchronized void disparar() {
-		if(getDisparo()) generator.generaMisil(this);
-		setDisparo(false);
+		//if(getDisparo()) generator.generaMisil(this);
+		//setDisparo(false);
+		generator.generaMisil(this);
 	}
 
 	protected void pintaNave(Graphics2D g2d) {

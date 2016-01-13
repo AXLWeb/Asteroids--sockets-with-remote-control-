@@ -10,29 +10,24 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
-
 public class Enemigo extends Thread{
 
-	private static final double DECEL_FACTOR = 0.015;
 	private Image enemigoImg; 
 	private Mapa mapa;
-	private Misil misil;
+	//private Misil misil;
 	private Generador generator;
-	private double x, y, velMax, velMin, aceleracion;
-	private int rotation, vida, rotation_inicial, contaSleeps;
-	private boolean pulsado, disparo, muerto, derecha, izquierda, arriba;
-	private MyVector Vdir, Vf, Vact, Vimpulso;
-	private int width, height;
-
+	private double x, y, aceleracion;
+	private int rotation, rotation_inicial, width, height, contaSleeps, contaDisparos;
+	private boolean muerto;
+	private MyVector Vdir, Vf, Vimpulso;
 
 	///////////////	setters & getters	//////////////////////////////
 	public Enemigo getEnemigo(){return this;}
 	public Mapa getMapa(){return this.mapa;}
-	public Misil getMisil(){return this.misil;}
+	//public Misil getMisil(){return this.misil;}
 	public int getRotation() {return this.rotation;}
 	protected int getWidth() {return this.width;}
 	protected int getHeight() {return this.height;}
-	public MyVector getVdir() {return this.Vdir;}
 	public Rectangle getPosicion() {return new Rectangle((int)getPosX(), (int)getPosY(), getWidth(), getHeight());} //devuelve posicion
 	public synchronized double getPosX() {return x;}
 	protected synchronized void setPosX(int x){this.x = x;}
@@ -40,7 +35,7 @@ public class Enemigo extends Thread{
 	protected synchronized void setPosY(int y){this.y = y;}
 	public synchronized boolean isMuerto() {return this.muerto;}
 	protected synchronized void setMuerto(boolean b) {this.muerto = b;}
-	
+
 
 	//Constructor Enemigo	
 	public Enemigo(Mapa mapa, Generador g) {
@@ -59,7 +54,7 @@ public class Enemigo extends Thread{
 		this.rotation = new Random().nextInt(360-0);	//angulo de movimiento
 		
 		//inicializacion Vectores
-		this.Vact = new MyVector(0, 0);		//Vector actual
+		//this.Vact = new MyVector(0, 0);		//Vector actual
 		this.Vdir = new MyVector(Math.cos(Math.toRadians(this.rotation)),Math.sin(Math.toRadians(this.rotation)));	//vector director
 		this.Vimpulso = this.Vdir.MultiplicaVectores(aceleracion);	//Calcula Vector Impulso
 		this.Vf = this.Vimpulso;
@@ -70,19 +65,20 @@ public class Enemigo extends Thread{
 
 		while(!muerto){
 			avanzar();
+
 			if(contaSleeps > 60) {
 				this.rotation = new Random().nextInt(300-10);	//ángulo movimiento
-				//System.out.println("rotacion  enemigo: "+this.rotation+" Sleeps: "+contaSleeps);
+				disparar();
 				contaSleeps=0;
 			}
 
-			try {sleep(60); contaSleeps++;}
+			//new Random().nextInt(4000 - 500) + 500;		//Esperar entre 0.5 - 4s
+			
+			try {sleep(60); contaSleeps++; contaDisparos++;}
 			catch (InterruptedException e) {e.printStackTrace();}
 		}
 	}
-	
-	
-	
+
 
 
 	/******************************************************************
@@ -92,29 +88,21 @@ public class Enemigo extends Thread{
 	protected void avanzar() {
 		mapa.calculaLimitesdelMapa(null,null,this);
  		recalculaVelocidad();
- 		mapa.chocaObjeto(this);
-		//disparar();
+ 		//mapa.chocaObjeto(this);
 	}
 
 	protected void recalculaVelocidad(){
-
-		//this.rotation = new Random().nextInt(360-0);	//ángulo movimiento
-
 		this.Vdir = new MyVector(Math.cos(Math.toRadians(getRotation())),Math.sin(Math.toRadians(getRotation())));	//vector director
 		this.Vimpulso = this.Vdir.MultiplicaVectores(aceleracion);		//Calcula Vector Impulso
 		this.Vf = this.Vimpulso;
 
-   		this.x += this.Vf.getX();	//asigna posicion X a la Nave
-		this.y += this.Vf.getY();	//asigna posicion Y a la Nave
-
+   		this.x += this.Vf.getX();	//asigna posicion X
+		this.y += this.Vf.getY();	//asigna posicion Y
 	}
 
 	protected synchronized void disparar() {
-		//TODO: Dispara a la posicion de la Nave + Su Vector Impulso
-		System.out.println("Enemigo dispara");
-		//generator.generaMisil(this);
+		generator.generaMisil(this);
 	}
-
 
 	/**
 	 * Carga las img necesarias del Enemigo

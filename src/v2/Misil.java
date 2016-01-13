@@ -19,6 +19,8 @@ public class Misil extends Thread {
 	//Constantes
 	private static final int width = 7;
 	private static final int height = 7;
+	private static final int widthEnemy = 5;
+	private static final int heightEnemy = 9;
 	private static final double aceleracion = 15;
 
 
@@ -41,6 +43,7 @@ public class Misil extends Thread {
 	//Constructor Misil de Nave
 	public Misil(Nave nave){
 		this.nave = nave;
+		this.enemigo=null;
 		this.mapa = nave.getMapa();
 		this.x = nave.getPosX() + nave.getWidth()/2;
 		this.y = nave.getPosY() + nave.getHeight()/2 - 2;
@@ -50,8 +53,32 @@ public class Misil extends Thread {
 		this.Vf = this.Vimpulso;
 	}
 
-	public void run() {
+	//Constructor Misil del Enemigo
+	public Misil(Enemigo e) {
+		this.nave=null;
+		this.enemigo = e;
+		this.mapa = e.getMapa();
+		this.x = e.getPosX() + e.getWidth()/2;
+		this.y = e.getPosY() + e.getHeight()/2;
+		this.muerto = false;
 
+		/*
+		Vector start = (x1, y1) //posicion enemigo
+        Vector end = (x2, y2)	//posicion nave
+
+        double x = x2-x1
+        double y = y2-y1
+
+        double angulo = Math.atan2(y2-y, x2-x);
+		 */
+
+		double angulo = Math.atan2(mapa.getNave().getPosY()-y, mapa.getNave().getPosX()-x);		//Calcula angulo (en radianes) segun la posicion del Enemigo respecto a la Nave
+		this.Vdir = new MyVector(Math.cos(angulo), Math.sin(angulo));		//Crea Vector director en base al angulo
+		this.Vimpulso = this.Vdir.MultiplicaVectores(Misil.aceleracion);	//Calcula Vector Impulso
+		this.Vf = this.Vimpulso;
+	}
+
+	public void run() {
 		while(!isMuerto()){
  			calculaTrayectoria();
 			try {sleep(40);} 
@@ -59,9 +86,15 @@ public class Misil extends Thread {
 		}
 	}
 
-	protected synchronized void pintaMisil (Graphics2D g2d){
+	protected synchronized void pintaMisilEnemigo (Graphics2D g2d){
+		Graphics2D g = (Graphics2D) g2d.create();
+		g.setColor(Color.white);
+		g.fillOval((int)this.x, (int)this.y, Misil.widthEnemy, Misil.heightEnemy);
+	}
+
+	protected synchronized void pintaMisilNave (Graphics2D g2d){
 		g2d.setColor(Color.green);
-		g2d.fillOval((int)this.x, (int)this.y, Misil.width, Misil.height); 		//pintar Misil
+		g2d.fillOval((int)this.x, (int)this.y, Misil.width, Misil.height);
 	}
 
 	/**

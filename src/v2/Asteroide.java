@@ -56,15 +56,11 @@ public class Asteroide extends Thread{
 		this.imgAsteroide = img;
 
 		this.rotation = new Random().nextInt(360 - 0) + 0;
-		//Vact = Vector anterio del Padre
-		this.Vact = Vant;
+		this.Vact = Vant; //Vector anterior del Padre
 
-		this.Vdir = new MyVector(Math.cos(Math.toRadians(this.rotation)),Math.sin(Math.toRadians(this.rotation)));	//vector director
-		this.Vimpulso = this.Vdir.MultiplicaVectores(aceleracion);		//Calcula Vector Impulso
-		//this.Vf = this.Vdir.SumaVectores(Vimpulso);					//calcula Vector final
-		this.Vf = this.Vimpulso;										//calcula Vector final
-
-		System.out.println("************************* nuevos asteroides hijos creados ***************************");
+		this.Vdir = new MyVector(Math.cos(Math.toRadians(this.rotation)),Math.sin(Math.toRadians(this.rotation)));
+		this.Vimpulso = this.Vdir.MultiplicaVectores(aceleracion);
+		this.Vf = this.Vimpulso;
 	}
 
 	//Constructor por defecto del Asteroide

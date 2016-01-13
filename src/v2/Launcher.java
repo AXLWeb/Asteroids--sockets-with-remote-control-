@@ -15,5 +15,6 @@ public class Launcher {
   * 
   * Si nave muere, GAME OVER 
   * Enemigo disparar en Vdir de la Nave
-  *
+  * Enemigo solo dispara al disparar la Nave
+  * Misil enemigo no se pinta automatico
 **/
