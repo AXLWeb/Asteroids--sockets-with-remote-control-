@@ -64,6 +64,7 @@ public class Enemigo extends Thread{
 
 		while(!muerto){
 			avanzar();
+			mapa.chocaObjeto(this);
 
 			if(contaSleeps > 60) {
 				this.rotation = new Random().nextInt(300-10);	//ángulo movimiento
@@ -84,7 +85,6 @@ public class Enemigo extends Thread{
 	protected void avanzar() {
 		mapa.calculaLimitesdelMapa(null,null,this);
  		recalculaVelocidad();
- 		//mapa.chocaObjeto(this);
 	}
 
 	protected void recalculaVelocidad(){

@@ -23,7 +23,7 @@ public class Nave extends Thread  {
 	private double x, y, velMax, velMin;
 	private int rotation, vida, contaSleeps;
 	private boolean pulsado, disparo, muerto, derecha, izquierda, arriba;
-	private MyVector Vdir, Vf, Vact, Vimpulso, Vinercia;
+	private MyVector Vdir, Vf, Vact, Vimpulso;
 	private int width, height;
 	double bajaVel;
 
@@ -54,7 +54,8 @@ public class Nave extends Thread  {
 	protected int getHeight() {return this.height;}
 	protected synchronized void setDerecha(boolean b){this.derecha=b;}
 	protected int getVida(){return this.vida;}
-	protected synchronized void setVida(int i){this.vida=i;}
+	//protected synchronized void setVida(int i){this.vida=i;}
+	protected synchronized void restaVidasNave() {this.vida--;}
 
 
 	/////////////// Constructor de Nave	///////////////
@@ -66,24 +67,25 @@ public class Nave extends Thread  {
 		this.height = 40;
 		this.x = mapa.getWidth()/2;
 		this.y = mapa.getHeight()/2;
-
 		this.velMax = 10;
 		this.velMin = 0.5;
-		this.vida = 100;	//empieza 100% de vida
+		this.vida = 100;		//empieza 100% de vida
 		this.pulsado = false;	//des-activa inercia
 		this.muerto = false;
 		this.contaSleeps=0;
-		this.rotation = new Random().nextInt(360-0);	//random de ángulo inicial
-		
+		this.rotation = new Random().nextInt(360-1)+2;	//random de ángulo inicial
+
 		//inicializacion Vectores
-		this.Vimpulso = this.Vact = new MyVector(0, 0);		//Vector actual
-		this.Vdir = new MyVector((int)Math.cos(rotation), (int)Math.sin(rotation));	//vector director
-		this.Vinercia = new MyVector(DECEL_FACTOR,DECEL_FACTOR);	//vector inercia
+		this.Vdir = new MyVector(Math.cos(rotation), Math.sin(rotation));	//vector director
+		this.Vimpulso = this.Vdir.MultiplicaVectores(aceleracion);
+		this.Vact = this.Vimpulso;
+		this.Vf = this.Vact.SumaVectores(Vimpulso);	//calcula Vector final
 	}
 	
 	public void run() {
 
 		while(!muerto){
+			mapa.chocaObjeto(this);
 			if(getPulsado()) avanzar();	//activa inercia
 
 			try {sleep(60);}
@@ -99,39 +101,12 @@ public class Nave extends Thread  {
 
 	protected void avanzar() {
 		mapa.calculaLimitesdelMapa(this, null, null);
-		//mapa.chocaObjeto(this);
 
 		if(getImpulso()) impulsaNave();
-		else if(getDerecha()) subeRotation();
-		else if(getIzquierda()) bajaRotation();
+		if(getDerecha()) subeRotation();
+		if(getIzquierda()) bajaRotation();
 
 		recalculaVelocidad();
-
-
-		/*
-		//control de movimiento Nave
-		if(getIzquierda() && getDerecha() && getImpulso()){
-			//Avanza. No gira
-			recalculaVelocidad();
-		}
-		else if(!getIzquierda() && getDerecha() && getImpulso()){
-			//avanza + drxa
-			recalculaVelocidad();
-			subeRotation();
-		}
-		else if(getIzquierda() && !getDerecha() && getImpulso()){
-			//avanza + izqda
-			recalculaVelocidad();
-			bajaRotation();
-		}
-		else if(!getIzquierda() && !getDerecha() && getImpulso()){
-			//avanza recto
-			recalculaVelocidad();
-		}
-		else if(!getIzquierda() && !getDerecha() && !getImpulso()){
-			recalculaVelocidad();
-		}
-		*/
 	}
 
 	protected void subeRotation() {
@@ -163,6 +138,7 @@ public class Nave extends Thread  {
 			if(Vf.getCurrentModule() > velMin) Vf.decelerar(DECEL_FACTOR);
 		}
 		else if(getImpulso()){
+			impulsaNave();
 			if(Vf.getCurrentModule() > velMax) Vf.readjustModule(velMax);
 		}
 
@@ -176,8 +152,6 @@ public class Nave extends Thread  {
 	}
 
 	protected synchronized void disparar() {
-		//if(getDisparo()) generator.generaMisil(this);
-		//setDisparo(false);
 		generator.generaMisil(this);
 	}
 

@@ -87,13 +87,14 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 	public void run() {
 		this.createBufferStrategy(2);
 		
-		//while(!nave.isMuerto()){
-		while(true){
+		while(nave.getVida()>0){
 			paint();
 
-			if(getListaEnemigos().size()<4) generator.generaEnemigo();
+			if(getListaEnemigos().size()< 1) generator.generaEnemigo();
 
-			if(contAsteroidesMuertos > 1) {
+			if(getListaAsteroides().size() < getMax_Asteroides()) generator.generaAsteroide();
+
+			if(contAsteroidesMuertos > 4) {
 				contAsteroidesMuertos = 0;
 				generator.generaEnemigo();
 			}
@@ -102,11 +103,12 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 			catch (InterruptedException e) {e.printStackTrace();}
 		}
 		
-		//System.out.println("GAME OVER !! ");
+		System.out.println("GAME OVER !! ");
+		System.exit(0);
 	}
 
 	/**
-	 * Comprueba si el Enemigo choca con algun otro Objeto del Mapa
+	 * Comprueba si el Enemigo choca con algun otro Objeto del Mapa. En caso afirmativo destruye ambos
 	 */
 	protected void chocaObjeto(Enemigo enemigo) {
 		if(!getListaAsteroides().empty()){
@@ -134,20 +136,25 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 		//Colisiones Enemigo VS Nave
 		if(chocan2Objetos(enemigo.getPosicion(), nave.getPosicion())){
 			enemigo.setMuerto(true);
-			nave.setMuerto(true);
+			//TODO: nave.setMuerto(true);
+			nave.restaVidasNave();
 		}
 	}
 
 	/**
-	 * Comprueba si la Nave choca con algun objeto del Mapa
+	 * Comprueba si la Nave choca con algun objeto del Mapa. En caso afirmativo desytuye la Nave y el objeto
 	 */
 	protected void chocaObjeto(Nave nave) {
+		//TODO: aqui no entra
 		if(!getListaAsteroides().empty()){
 			//Colisiones Nave VS Asteroides
 			for(int i=0; i<getListaAsteroides().size(); i++){
-				if(chocan2Objetos(getListaAsteroides().get(i).getPosicion(), nave.getPosicion()) && !getListaAsteroides().get(i).isMuerto()){
-					nave.setMuerto(true);
-					getListaAsteroides().get(i).setMuerto(true);
+				Asteroide asteroide_actual = getListaAsteroides().get(i);
+				if(chocan2Objetos(asteroide_actual.getPosicion(), nave.getPosicion()) && !asteroide_actual.isMuerto()){
+					//TODO: nave.setMuerto(true);
+					asteroide_actual.setMuerto(true);
+					nave.restaVidasNave();
+					System.out.println("Nave choca con Asteroide "+asteroide_actual.getName()+" y ambos mueren");
 				}
 			}
 		}
@@ -156,15 +163,17 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 			//Colisiones Nave VS Enemigos
 			for(int i=0; i<getListaEnemigos().size(); i++){
 				if(chocan2Objetos(getListaEnemigos().get(i).getPosicion(), nave.getPosicion()) && !getListaEnemigos().get(i).isMuerto()){
-					nave.setMuerto(true);
+					//TODO: nave.setMuerto(true);
 					getListaEnemigos().get(i).setMuerto(true);
+					nave.restaVidasNave();
+					System.out.println("Nave choca con enemigo y ambos mueren");
 				}				
 			}
 		}
 	}
 
 	/**
-	 * Comprueba si el misil choca o debe morir
+	 * Comprueba si el misil choca con algún  Objeto o debe morir
 	 */
 	protected void sigueDisparo(Misil misil) {
 
@@ -175,13 +184,14 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 
 		else if(misilChocaAsteroide(misil)) misil.setMuerto(true);
 
-		//TODO:
-		//if(misilChocaNave(misil)) misil.setMuerto(true);
-		
-		//TODO: si chocan 2 misiles nave/enemy
-		//else if(misilChocaMisil(misil)) misil.setMuerto(true);
+		else if(misilChocaNave(misil)) misil.setMuerto(true);
+
+		else if(misilChocaMisil(misil)) misil.setMuerto(true);
 	}
 
+	/**
+	 * Comprueba si un Misil (cualquiera) choca con un Enemigo
+	 */
 	private boolean misilChocaEnemigo(Misil misil_actual) {
 		boolean misil_muere=false;
 		for(int i=0; i<getListaEnemigos().size(); i++){
@@ -196,18 +206,24 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 		}
 		return misil_muere;
 	}
-	
-	
-	private boolean misilNaveChocaEnemigo(Misil misil_actual) {
-		//Comprueba si Misil Nave choca con algun Enemigo
+
+	/**
+	 * Comprueba si un Misil enemigo choca con la Nave
+	 */
+	private boolean misilChocaNave(Misil misil){
 		boolean misil_muere=false;
-		for(int i=0; i<getListaEnemigos().size(); i++){
-			Enemigo enemigo = getListaEnemigos().get(i);
-			
-			if(chocan2Objetos(misil_actual.getPosicion(), enemigo.getPosicion())){
-				//System.out.println("Misil choca con Enemigo");
-				getListaEnemigos().get(i).setMuerto(true);
-				misil_muere = true;
+		//si es un Misil de Enemigo y NO es de Nave
+		if(misil.getEnemigo() != null && misil.getNave()==null){
+			if(!getListaMisilesEnemigo().empty()){
+				for(int i=0; i < getListaMisilesEnemigo().size(); i++){
+					Misil misil_enemy = getListaMisilesEnemigo().get(i);
+					if(chocan2Objetos(misil_enemy.getPosicion(), nave.getPosicion())){
+						misil_muere = true;
+						nave.restaVidasNave();
+						if(nave.getVida()<0) nave.setMuerto(true);
+						//TODO: nave.setMuerto(true);
+					}
+				}
 			}
 		}
 		return misil_muere;
@@ -217,26 +233,55 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 	 * Comprueba si 1 Misil choca con otro Misil distinto
 	 */
 	private boolean misilChocaMisil(Misil misil) {
-		
 		boolean misil_muere=false;
-		if(misil.getEnemigo() != null && misil.getNave()==null){
-			//misil enemigo
-			System.out.println("misil de enemigo");
-			//TODO: si no es él mismo
-			//	for getListaMisiles()
-		}
-		else if(misil.getNave() != null && misil.getEnemigo()==null){
-			//misil de nave
-			System.out.println("misil de nave");
-			//TODO: si no es él mismo
-			//	for getListaMisilesEnemigo()
-			
-		}
 		
+		//misil enemigo que choca con el de Nave
+		if(misil.getEnemigo() != null && misil.getNave()==null){
+			if(!getListaMisiles().empty()){
+				for(int i=0; i < getListaMisiles().size(); i++){
+					Misil misil_nave = getListaMisiles().get(i);
+					if(chocan2Objetos(misil.getPosicion(), misil_nave.getPosicion())){
+						misil_muere = true;
+						misil_nave.setMuerto(true);
+						System.out.println("misil de enemigo Choca con misil de Nave y ambos mueren");
+					}
+				}
+			}
+			//misil enemigo que choca con otro misil enemigo (pero no es EL MISMO)
+			if(!getListaMisilesEnemigo().empty()){
+				for(int i=0; i<getListaMisilesEnemigo().size();i++){
+					Misil misil_enemy = getListaMisilesEnemigo().get(i);
+					if(chocan2Objetos(misil.getPosicion(), misil_enemy.getPosicion())){
+						//si NO es EL mismo que se dispara
+						if(misil.getEnemigo() != misil_enemy.getEnemigo()){
+							misil_muere = true;
+							misil_enemy.setMuerto(true);
+							System.out.println("2 misiles de enemigos que chocan entre sí");
+						}
+					}
+				}
+			}
+		}
+		//misil de nave que choca con el del Enemigo
+		else if(misil.getNave() != null && misil.getEnemigo()==null){
+			if(!getListaMisilesEnemigo().empty()){
+				for(int i=0; i<getListaMisilesEnemigo().size(); i++){
+					Misil misil_enemy = getListaMisilesEnemigo().get(i);
+					if(chocan2Objetos(misil.getPosicion(), misil_enemy.getPosicion())){
+						misil_muere=true;
+						misil_enemy.setMuerto(true);
+						System.out.println("misil de nave Choca con misil enemigo y ambos mueren");
+					}
+				}
+			}
+		}
+
 		return misil_muere;
 	}
-	
 
+	/**
+	 * Comprueba si un Misil (cualquiera) choca con un Asteroide. En caso de que choquen generará otros 2 asteroides + pequeños
+	 */
 	protected boolean misilChocaAsteroide(Misil misil_actual) {
 		//Comprueba si Misil choca con algun Asteroide
 		boolean misil_muere=false;
@@ -245,17 +290,13 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 			Asteroide asteroide_actual = getListaAsteroides().get(j);
 
 			if(chocan2Objetos(misil_actual.getPosicion(),asteroide_actual.getPosicion()) && !getListaAsteroides().get(j).isMuerto()){
-				System.out.println("Misil choca con Asteroide vivo");
-
 				getListaAsteroides().get(j).setMuerto(true);
 				misil_muere = true;
 				double sk = getListaAsteroides().get(j).getScale();
 				contAsteroidesMuertos++;
-
-				//Crear 2 new Asteroides + pequeños
+				//Crea 2 new Asteroides + pequeños
 				if(sk > 0.25 && getListaAsteroides().get(j).isMuerto()) {
 					generator.generar2Asteroides(getListaAsteroides().get(j));
-					System.out.println("generando 2 asteroides nuevos a partir del anterior");
 				}
 			}
 		}

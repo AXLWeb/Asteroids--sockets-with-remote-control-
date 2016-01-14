@@ -59,7 +59,6 @@ public class Generador extends Thread {
 	protected void generaAsteroide(){
 		if(mapa.getListaAsteroides().size() < mapa.getMax_Asteroides()){
 			Asteroide asteroid = new Asteroide(mapa);
-			//mapa.getMapa().getListaAsteroides().push(asteroid);
 			mapa.getMapa().getListaAsteroides().addElement(asteroid);
 			asteroid.start();
 		}
