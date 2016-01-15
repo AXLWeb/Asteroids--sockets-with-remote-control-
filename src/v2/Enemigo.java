@@ -14,7 +14,6 @@ public class Enemigo extends Thread{
 
 	private Image enemigoImg; 
 	private Mapa mapa;
-	//private Misil misil;
 	private Generador generator;
 	private double x, y, aceleracion;
 	private int rotation, rotation_inicial, width, height, contaSleeps, contaDisparos;
@@ -24,7 +23,6 @@ public class Enemigo extends Thread{
 	///////////////	setters & getters	//////////////////////////////
 	public Enemigo getEnemigo(){return this;}
 	public Mapa getMapa(){return this.mapa;}
-	//public Misil getMisil(){return this.misil;}
 	public int getRotation() {return this.rotation;}
 	protected int getWidth() {return this.width;}
 	protected int getHeight() {return this.height;}
@@ -46,13 +44,13 @@ public class Enemigo extends Thread{
 		this.width = 41;
 		this.height = 30;
 
-		this.y = new Random().nextInt(mapa.getHeight() - 10) + 10; //Random().nextInt(high-low) + low;
-		this.x = new Random().nextInt(mapa.getWidth() - 10) + 10;	
+		this.y = new Random().nextInt(mapa.getHeight() - 10) + 10;
+		this.x = new Random().nextInt(mapa.getWidth() - 10) + 10;
 		this.aceleracion = new Random().nextInt(5 - 1) + 1;
 		this.contaSleeps=0;
 		this.rotation_inicial = 0;
 		this.rotation = new Random().nextInt(360-0);	//angulo de movimiento
-		
+
 		//inicializacion Vectores
 		this.Vdir = new MyVector(Math.cos(Math.toRadians(this.rotation)),Math.sin(Math.toRadians(this.rotation)));	//vector director
 		this.Vimpulso = this.Vdir.MultiplicaVectores(aceleracion);	//Calcula Vector Impulso
@@ -74,6 +72,8 @@ public class Enemigo extends Thread{
 			try {sleep(60); contaSleeps++; contaDisparos++;}
 			catch (InterruptedException e) {e.printStackTrace();}
 		}
+		
+		if(this.isMuerto()) generator.getSonidoEnemigo().stop();
 	}
 
 

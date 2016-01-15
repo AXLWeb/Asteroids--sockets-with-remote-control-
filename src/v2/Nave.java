@@ -19,13 +19,12 @@ public class Nave extends Thread  {
 	private Mapa mapa;
 	private Misil misil;
 	private Generador generator;
-
+	private Puntos puntos;
 	private double x, y, velMax, velMin;
-	private int rotation, vida, contaSleeps;
+	private int rotation, width, height, vida, vidas, contaSleeps;
 	private boolean pulsado, disparo, muerto, derecha, izquierda, arriba;
 	private MyVector Vdir, Vf, Vact, Vimpulso;
-	private int width, height;
-	double bajaVel;
+
 
 	///////////////	setters & getters	//////////////////////////////
 	public void setPulsado(boolean b) {this.pulsado = b;}
@@ -35,6 +34,7 @@ public class Nave extends Thread  {
 	public Nave getNave(){return this;}
 	public Mapa getMapa(){return this.mapa;}
 	public Misil getMisil(){return this.misil;}
+	protected Puntos getPuntos(){return this.puntos;}
 	protected void setIzquierda(boolean b){this.izquierda=b;}
 	protected void setImpulso(boolean b){this.arriba = b;}
 	protected void setDisparo(boolean b){this.disparo = b;}
@@ -54,8 +54,9 @@ public class Nave extends Thread  {
 	protected int getHeight() {return this.height;}
 	protected synchronized void setDerecha(boolean b){this.derecha=b;}
 	protected int getVida(){return this.vida;}
-	//protected synchronized void setVida(int i){this.vida=i;}
+	protected int getVidas(){return this.vidas;}
 	protected synchronized void restaVidasNave() {this.vida--;}
+	
 
 
 	/////////////// Constructor de Nave	///////////////
@@ -70,8 +71,10 @@ public class Nave extends Thread  {
 		this.velMax = 10;
 		this.velMin = 0.5;
 		this.vida = 100;		//empieza 100% de vida
+		this.vidas = 3;			//empieza 3 vidas
 		this.pulsado = false;	//des-activa inercia
 		this.muerto = false;
+		this.puntos = new Puntos();
 		this.contaSleeps=0;
 		this.rotation = new Random().nextInt(360-1)+2;	//random de ángulo inicial
 
@@ -99,6 +102,8 @@ public class Nave extends Thread  {
 	 ***************    Métodos propios de la Nave		***************
 	 ******************************************************************/
 
+	protected void quitaVidas() {if(this.vidas>0) this.vidas--;}
+	
 	protected void avanzar() {
 		mapa.calculaLimitesdelMapa(this, null, null);
 

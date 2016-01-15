@@ -1,34 +1,59 @@
 package v2;
+
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.image.BufferStrategy;
 import java.io.IOException;
 import java.util.Random;
 import java.util.Vector;
 import javax.imageio.ImageIO;
 
 public class Generador extends Thread {
+
 	private Frame frame;
 	private Mapa mapa;
 	private Nave nave;
+	private PantInicial pantInicial;
+	private Sonidos sonidoEnemigo, sonidoMisil, sonidoMuerte, sonidoJuego;
 
-	/////////////////	Constructor 	//////////////////////////////
+	///////////////	setters & getters	//////////////////////////////
+	public Sonidos getSonidoMisil() {return sonidoMisil;}
+	public Sonidos getSonidoJuego() {return sonidoJuego;}
+	public Sonidos getSonidoMuerte() {return sonidoMuerte;}
+	public Sonidos getSonidoEnemigo() {return sonidoEnemigo;}
+	public Mapa getMapa() {return this.mapa;}
+
+	//Constructor
 	public Generador() {
-		this.mapa = new Mapa(this);
-		this.frame = new Frame();
-		this.frame.setMapa(this.mapa);
-		this.frame.setBounds(100, 100, this.mapa.getWidth(), this.mapa.getHeight());
+		//this.pantInicial = new PantInicial();
+		generaMapa();
 		generaNave();
 		mapa.start();
 	}
 
 	public void run(){
-		while(true){
+
+		while(mapa.isJugando()){
 			if(mapa.getListaAsteroides().size() < mapa.getMax_Asteroides() ){
-				//generaAsteroide();
-				try {this.sleep(1000);} 
+				generaAsteroide();
+				try {this.sleep(1000);}
 				catch (InterruptedException ex) {ex.printStackTrace();}
 			}
 		}
+	}
+
+	protected void generaMapa(){
+		this.mapa = new Mapa(this);
+		this.frame = new Frame();
+		this.frame.setMapa(this.mapa);
+		this.frame.setBounds(100, 100, this.mapa.getWidth(), this.mapa.getHeight());
+		mapa.setVisible(true);
+
+		//Creamos sonido del juego
+		//this.sonidoJuego = new Sonidos("/sound/mp3");
+		//if(mapa.isJugando()) sonidoJuego.loop();
 	}
 
 	protected void generaNave(){
@@ -39,21 +64,33 @@ public class Generador extends Thread {
 
 	protected synchronized void generaEnemigo(){
 		Enemigo enemigo = new Enemigo(mapa, this);
-		mapa.setEnemy(enemigo);
+		//mapa.setEnemy(enemigo);
 		mapa.getMapa().getListaEnemigos().addElement(enemigo);
 		enemigo.start();
+
+		//Crea sonido del enemigo
+		//this.sonidoEnemigo = new Sonidos("/sound/mp3");
+		//sonidoEnemigo.play();
 	}
 
 	protected void generaMisil(Enemigo enemigo) {
 		Misil misil = new Misil(enemigo);
 		mapa.getListaMisilesEnemigo().addElement(misil);
 		misil.start();
+
+		//Crea sonido del Misil lanzado
+		//this.sonidoMisil = new Sonidos("/sound/mp3");
+		//sonidoMisil.play();
 	}
 
 	protected synchronized void generaMisil(Nave nave){
 		Misil misil = new Misil(nave);
 		mapa.getListaMisiles().addElement(misil);
 		misil.start();
+
+		//Crea sonido del Misil lanzado
+		this.sonidoMisil = new Sonidos("/sound/beep01.wav");
+		sonidoMisil.play();
 	}
 
 	protected void generaAsteroide(){
@@ -64,7 +101,7 @@ public class Generador extends Thread {
 		}
 	}
 
-	private double devuelveEscala(double scale) {
+	protected double devuelveEscala(double scale) {
 		double escala=0;
 		if(scale>0.001 && scale<0.3) escala = 0.25;
 		else if(scale>0.3 && scale<0.6) escala = 0.5;
@@ -85,23 +122,23 @@ public class Generador extends Thread {
 		int height = asteroide.getHeight();
 		Image img = asteroide.getImg();
 		MyVector Vact = asteroide.getVf();
-		//System.out.println("Padre murio en "+posicion+" con escala= "+escala+" y acel "+acel);
-		//TODO: EN EL MISMO LUGAR DONDE MURIO SU PADRE y con la RESTA de VECTORES
 		escala /=2;	//divide escala del Padre /2
 		double x = posicion.getX();
 		double y = posicion.getY();
-
-//		System.out.println("Nueva escala es: "+ escala+" aceleracion: "+acel);
-//		System.out.println("Nuevas posiciones "+ x +", "+ y);
+		
+		//TODO: +40º y -40º, misma VDir (Vf?)
 
 		Asteroide asteroid1 = new Asteroide(mapa, escala, acel, x, y, Vact, img, width/2, height/2);
 		Asteroide asteroid2 = new Asteroide(mapa, escala, acel, x, y, Vact, img, width/2, height/2);
 		mapa.getMapa().getListaAsteroides().addElement(asteroid1);
 		mapa.getMapa().getListaAsteroides().addElement(asteroid2);
 
-		//System.out.println("Hay "+mapa.getListaAsteroides().size()+" asteroides vivos");
 		asteroid1.start();
 		asteroid2.start();
+	}
+	
+	protected void gameOver() {
+		//TODO: mostrar GAME OVER y PUNTOS
 	}
 
 }
