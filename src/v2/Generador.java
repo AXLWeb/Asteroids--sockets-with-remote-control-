@@ -16,6 +16,7 @@ public class Generador extends Thread {
 	private Mapa mapa;
 	private Nave nave;
 	private PantInicial pantInicial;
+	private Puntos puntos;
 	private Sonidos sonidoEnemigo, sonidoMisil, sonidoMuerte, sonidoJuego;
 
 	///////////////	setters & getters	//////////////////////////////
@@ -139,6 +140,11 @@ public class Generador extends Thread {
 	
 	protected void gameOver() {
 		//TODO: mostrar GAME OVER y PUNTOS
+		
+		System.out.println("GAME OVER !! ");
+		this.puntos = new Puntos();
+		puntos.leerStats();
+		
 	}
 
 }

@@ -106,7 +106,7 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 		}
 
 		//generator.getSonidoJuego().stop();
-		System.out.println("GAME OVER !! ");
+		
 		if(!this.isJugando()) generator.gameOver();
 		//System.exit(0);
 	}
@@ -146,7 +146,7 @@ public class Mapa extends Canvas implements Runnable, KeyListener {
 	}
 
 	/**
-	 * Comprueba si la Nave choca con algun objeto del Mapa. En caso afirmativo desytuye la Nave y el objeto
+	 * Comprueba si la Nave choca con algun objeto del Mapa. En caso afirmativo resta 1 vida a la Nave y elimina el objeto
 	 */
 	protected void chocaObjeto(Nave nave) {
 		if(!getListaAsteroides().empty()){

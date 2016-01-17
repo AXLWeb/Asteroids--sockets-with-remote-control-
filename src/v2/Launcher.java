@@ -2,15 +2,12 @@ package v2;
 
 public class Launcher {
 
-	private static Mapa mapa;
-	
-
 /**
  //TODO:
   * 
-  * Vdir de los Asteroides nuevos a partir del Vdir del padre
+  * Vdir de los Asteroides nuevos a partir del Vdir del padre (+/-40º)
   * Pantalla inicial & final
-  * Puntos, storage file
+  * Puntos, leer/guardar en file
   * Sonidos (check)
   * Crear enemigo grande y pequeño
 **/
@@ -18,23 +15,12 @@ public class Launcher {
 	public static void main(String[] args) {
 		Generador g = new Generador();
 		g.start();
-		
 
 		//pantalla inicio
 		//Juego Mapa
 		//Pantalla final
-		
-		
-	}
 
-	private static void GeneralStats() {
 	}
-
-	private static void leerStats() {
-	}
-
-	
-	
 	
 }
 

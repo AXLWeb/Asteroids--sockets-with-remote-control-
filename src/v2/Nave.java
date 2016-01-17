@@ -56,7 +56,6 @@ public class Nave extends Thread  {
 	protected int getVida(){return this.vida;}
 	protected int getVidas(){return this.vidas;}
 	protected synchronized void restaVidasNave() {this.vida--;}
-	
 
 
 	/////////////// Constructor de Nave	///////////////
