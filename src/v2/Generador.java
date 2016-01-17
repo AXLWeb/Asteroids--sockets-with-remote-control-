@@ -140,11 +140,13 @@ public class Generador extends Thread {
 	
 	protected void gameOver() {
 		//TODO: mostrar GAME OVER y PUNTOS
-		
-		System.out.println("GAME OVER !! ");
+
 		this.puntos = new Puntos();
-		puntos.leerStats();
-		
+
+		String puntos = String.valueOf(nave.getPuntos().getTotal());
+		String nombre = nave.getNombreJugador();
+
+		nave.getPuntos().writeStats(puntos, nombre);
 	}
 
 }

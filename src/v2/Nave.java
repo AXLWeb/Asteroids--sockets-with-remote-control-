@@ -24,6 +24,7 @@ public class Nave extends Thread  {
 	private int rotation, width, height, vida, vidas, contaSleeps;
 	private boolean pulsado, disparo, muerto, derecha, izquierda, arriba;
 	private MyVector Vdir, Vf, Vact, Vimpulso;
+	private String nombreJugador;
 
 
 	///////////////	setters & getters	//////////////////////////////
@@ -56,11 +57,13 @@ public class Nave extends Thread  {
 	protected int getVida(){return this.vida;}
 	protected int getVidas(){return this.vidas;}
 	protected synchronized void restaVidasNave() {this.vida--;}
+	protected String getNombreJugador() {return this.nombreJugador;}
 
 
 	/////////////// Constructor de Nave	///////////////
 	public Nave(Mapa mapa, Generador g) {
 		cargaImgs();
+		this.nombreJugador = "LeX";
 		this.mapa = mapa;
 		this.generator = g;
 		this.width = 100;
@@ -180,5 +183,6 @@ public class Nave extends Thread  {
 		}
 		catch (IOException e) {e.printStackTrace();}
 	}
+
 
 }

@@ -6,6 +6,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URL;
+import java.util.Scanner;
 
 public class Puntos {
 
@@ -37,47 +39,57 @@ public class Puntos {
 	protected void killEnemy(){setAstMini(getAstMini()+valorKillEnemy);}
 	protected void sumaTodosLosPuntos(){this.total = getAstMini()+getAstMed()+getAstBig()+getEnemy();}
 
-	protected void leerStats(){
-				
+	protected String leerStats(){
+		String s="";
 		try {
-			FileReader fr = new FileReader(String.valueOf(Launcher.class.getResource(src)));
+			FileReader fr = new FileReader(src);
 			BufferedReader br = new BufferedReader(fr);
-
 			String line;
+
+			br.readLine(); //saltar la primera linea (titulo CSV)
+
             while((line = br.readLine()) != null) {
-                System.out.println(line);
+                //System.out.println(line);
+                s += line+"\n";
             }
 
             fr.close();
             br.close();
 
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("Archivo de estadisticas no encontrado en "+src);
 		}
+
+		return s;
 	}
 
-	protected void writeStats(){
+	protected void writeStats(String puntos, String nombre){
+
+		FileWriter fw = null;
+		BufferedWriter bw = null;
 
         try {
-            FileWriter fw = new FileWriter(src);
-            BufferedWriter bw = new BufferedWriter(fw);
-
-            // Note that write() does not automatically append a newline character.
-            bw.write("Hello there,");
-            bw.write(" here is some text.");
+            fw = new FileWriter(src, true);		//boolean indicating whether or not to append the data written.
+            bw = new BufferedWriter(fw);
+            bw.write(nombre+";"+puntos);
             bw.newLine();
-            bw.write("We are writing");
-            bw.write(" the text to the file.");
-            
-            //TODO: leer src, append en memoria, write TODO again
-
-
-            fw.close();
-            bw.close();
         }
         catch(IOException ex) {
-            System.out.println("Error writing to file '"+ src + "'"); ex.printStackTrace();
+        	 ex.printStackTrace();
+            System.out.println("Error writing to file '"+ src + "'");
+        }
+        finally{
+            try{
+            	fw.flush(); bw.flush();
+                fw.close(); bw.close();
+            }catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("Error while flushing/closing fileWriter !!!");
+            }
         }
 	}
+
+
 }
