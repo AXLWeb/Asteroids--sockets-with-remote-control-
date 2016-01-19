@@ -76,13 +76,13 @@ public class Misil extends Thread {
 		}
 	}
 
-	protected synchronized void pintaMisilEnemigo (Graphics2D g2d){
+	protected void pintaMisilEnemigo (Graphics2D g2d){
 		Graphics2D g = (Graphics2D) g2d.create();
 		g.setColor(Color.white);
 		g.fillOval((int)this.x, (int)this.y, Misil.widthEnemy, Misil.heightEnemy);
 	}
 
-	protected synchronized void pintaMisilNave (Graphics2D g2d){
+	protected void pintaMisilNave (Graphics2D g2d){
 		g2d.setColor(Color.green);
 		g2d.fillOval((int)this.x, (int)this.y, Misil.width, Misil.height);
 	}
@@ -90,10 +90,10 @@ public class Misil extends Thread {
 	/**
 	 * Calcula trayectoria de Misil vivo
 	 */
-	protected synchronized void calculaTrayectoria() {
+	protected void calculaTrayectoria() {
+		mapa.sigueDisparo(this);
 		this.x += this.Vf.getX();	//asigna posicion X
 		this.y += this.Vf.getY();	//asigna posicion Y
-		mapa.sigueDisparo(this);
 	}
 
 }

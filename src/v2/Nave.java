@@ -15,7 +15,7 @@ public class Nave extends Thread  {
 
 	private static final double DECEL_FACTOR = 0.05;
 	private static final double aceleracion = 0.25;
-	private Image NaveImg,fuegoImg;
+	private Image NaveImg,fuegoImg,NaveVidas;
 	private Mapa mapa;
 	private Misil misil;
 	private Generador generator;
@@ -28,6 +28,8 @@ public class Nave extends Thread  {
 
 
 	///////////////	setters & getters	//////////////////////////////
+	public Image getImage(){return this.NaveVidas;}
+	public Sonidos sonidos;
 	public void setPulsado(boolean b) {this.pulsado = b;}
 	public boolean getPulsado(){return this.pulsado;}
 	public void setRotation(int rotation) {this.rotation = rotation;}
@@ -36,11 +38,12 @@ public class Nave extends Thread  {
 	public Mapa getMapa(){return this.mapa;}
 	public Misil getMisil(){return this.misil;}
 	protected Puntos getPuntos(){return this.puntos;}
-	protected void setIzquierda(boolean b){this.izquierda=b;}
 	protected void setImpulso(boolean b){this.arriba = b;}
 	protected void setDisparo(boolean b){this.disparo = b;}
 	public boolean getIzquierda(){return this.izquierda;}
 	public boolean getDerecha(){return this.derecha;}
+	protected synchronized void setIzquierda(boolean b){this.izquierda=b;}
+	protected synchronized void setDerecha(boolean b){this.derecha=b;}
 	public boolean getImpulso(){return this.arriba;}
 	public boolean getDisparo(){return this.disparo;}
 	public MyVector getVdir() {return this.Vdir;}
@@ -53,19 +56,19 @@ public class Nave extends Thread  {
 	protected synchronized void setPosY(int y){this.y = y;}
 	protected int getWidth() {return this.width;}
 	protected int getHeight() {return this.height;}
-	protected synchronized void setDerecha(boolean b){this.derecha=b;}
 	protected int getVida(){return this.vida;}
 	protected int getVidas(){return this.vidas;}
-	protected synchronized void restaVidasNave() {this.vida--;}
-	protected String getNombreJugador() {return this.nombreJugador;}
+	protected synchronized void restaVidaNave() {if(this.vida>1) this.vida--;}
+	protected String getNombreJugador() { if(this.nombreJugador==null) return "AAA"; else return this.nombreJugador;}
 
 
 	/////////////// Constructor de Nave	///////////////
 	public Nave(Mapa mapa, Generador g) {
 		cargaImgs();
-		this.nombreJugador = "LeX";
 		this.mapa = mapa;
 		this.generator = g;
+		this.sonidos = generator.getSonidos();
+
 		this.width = 100;
 		this.height = 40;
 		this.x = mapa.getWidth()/2;
@@ -90,7 +93,7 @@ public class Nave extends Thread  {
 	public void run() {
 
 		while(!muerto){
-			mapa.chocaObjeto(this);
+			//mapa.chocaObjeto(this);
 			if(getPulsado()) avanzar();	//activa inercia
 
 			try {sleep(60);}
@@ -104,7 +107,7 @@ public class Nave extends Thread  {
 	 ***************    Métodos propios de la Nave		***************
 	 ******************************************************************/
 
-	protected void quitaVidas() {if(this.vidas>0) this.vidas--;}
+	protected synchronized void quitaVidas() {if(this.vidas>0) this.vidas--;}
 	
 	protected void avanzar() {
 		mapa.calculaLimitesdelMapa(this, null, null);
@@ -140,12 +143,13 @@ public class Nave extends Thread  {
 		this.Vf = this.Vact.SumaVectores(Vimpulso);						//calcula Vector final
 
 		if(!getImpulso()){
-			//resta velActual hasta llegar velMin
 			this.Vimpulso = new MyVector(0,0);	//resetea Vimpulso
+			sonidos.stop(sonidos.getImpulso());
 			if(Vf.getCurrentModule() > velMin) Vf.decelerar(DECEL_FACTOR);
 		}
 		else if(getImpulso()){
 			impulsaNave();
+			sonidos.loop(sonidos.getImpulso());	//sonido impulso
 			if(Vf.getCurrentModule() > velMax) Vf.readjustModule(velMax);
 		}
 
@@ -160,6 +164,7 @@ public class Nave extends Thread  {
 
 	protected synchronized void disparar() {
 		generator.generaMisil(this);
+		sonidos.play(sonidos.getDisparoMisil());
 	}
 
 	protected void pintaNave(Graphics2D g2d) {
@@ -169,6 +174,7 @@ public class Nave extends Thread  {
 		if(getImpulso()) {
 			g.drawImage(fuegoImg, (int)this.getPosX(), (int)this.getPosY()+8, null);
 			g.drawImage(NaveImg, (int)this.getPosX(), (int)this.getPosY(), null);
+			
 		}
 		else g.drawImage(NaveImg, (int)this.getPosX(), (int)this.getPosY(), null);
 	}
@@ -180,6 +186,7 @@ public class Nave extends Thread  {
 		try {
 			fuegoImg = ImageIO.read(Launcher.class.getResource("/img/fuego.png"));
 			NaveImg = ImageIO.read(Launcher.class.getResource("/img/nave1.png"));
+			NaveVidas = ImageIO.read(Launcher.class.getResource("/img/nave.fw.png"));
 		}
 		catch (IOException e) {e.printStackTrace();}
 	}

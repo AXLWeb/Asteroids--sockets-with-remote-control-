@@ -16,7 +16,7 @@ public class Enemigo extends Thread{
 	private Mapa mapa;
 	private Generador generator;
 	private double x, y, aceleracion;
-	private int rotation, rotation_inicial, width, height, contaSleeps, contaDisparos;
+	private int escala, rotation, rotation_inicial, width, height, contaSleeps, contaDisparos;
 	private boolean muerto;
 	private MyVector Vdir, Vf, Vimpulso;
 
@@ -24,6 +24,7 @@ public class Enemigo extends Thread{
 	public Enemigo getEnemigo(){return this;}
 	public Mapa getMapa(){return this.mapa;}
 	public int getRotation() {return this.rotation;}
+	public int getScale() {return this.escala;}
 	protected int getWidth() {return this.width;}
 	protected int getHeight() {return this.height;}
 	public Rectangle getPosicion() {return new Rectangle((int)getPosX(), (int)getPosY(), getWidth(), getHeight());} //devuelve posicion
@@ -41,8 +42,9 @@ public class Enemigo extends Thread{
 		cargaImgs();
 		this.generator = g;
 		this.mapa = mapa;
-		this.width = 41;
-		this.height = 30;
+		this.escala = 2;
+		this.width = 55;
+		this.height = 45;
 
 		this.y = new Random().nextInt(mapa.getHeight() - 10) + 10;
 		this.x = new Random().nextInt(mapa.getWidth() - 10) + 10;
@@ -58,11 +60,32 @@ public class Enemigo extends Thread{
 	}
 
 
+	public Enemigo(Mapa mapa, Generador g, Enemigo enemigo) {
+		cargaImgs();
+		this.generator = g;
+		this.mapa = mapa;
+		this.escala = 1;
+		this.width = enemigo.getWidth() -25;	//30
+		this.height = enemigo.getHeight() - 25;	//20
+
+		this.y = new Random().nextInt(mapa.getHeight() - 10) + 10;
+		this.x = new Random().nextInt(mapa.getWidth() - 10) + 10;
+		this.aceleracion = new Random().nextInt(5 - 1) + 1;
+		this.contaSleeps=0;
+		this.rotation_inicial = 0;
+		this.rotation = new Random().nextInt(360-0);	//angulo de movimiento
+
+		//inicializacion Vectores
+		this.Vdir = new MyVector(Math.cos(Math.toRadians(this.rotation)),Math.sin(Math.toRadians(this.rotation)));	//vector director
+		this.Vimpulso = this.Vdir.MultiplicaVectores(aceleracion);	//Calcula Vector Impulso
+		this.Vf = this.Vimpulso;
+	}
+
 	public void run() {
 
 		while(!muerto){
 			avanzar();
-			mapa.chocaObjeto(this);
+			//mapa.chocaObjeto(this);
 
 			if(contaSleeps > 60) {
 				this.rotation = new Random().nextInt(300-10);	//ángulo movimiento
@@ -72,8 +95,9 @@ public class Enemigo extends Thread{
 			try {sleep(60); contaSleeps++; contaDisparos++;}
 			catch (InterruptedException e) {e.printStackTrace();}
 		}
-		
-		if(this.isMuerto()) generator.getSonidoEnemigo().stop();
+
+		//TODO: STOP sonido Enemigo 
+		//if(this.isMuerto()) generator.getSonidoEnemigo().stop();
 	}
 
 
@@ -96,7 +120,7 @@ public class Enemigo extends Thread{
 		this.y += this.Vf.getY();	//asigna posicion Y
 	}
 
-	protected synchronized void disparar() {
+	protected void disparar() {
 		generator.generaMisil(this);
 	}
 

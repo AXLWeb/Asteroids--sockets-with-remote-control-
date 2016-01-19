@@ -11,11 +11,12 @@ import java.util.Scanner;
 
 public class Puntos {
 
-	private int AstMini, AstMed, AstBig, Enemy, total;
-	private static final int valorKillAstMini = 100;
-	private static final int valorKillAstMed = 50;
+	private int AstMini, AstMed, AstBig, Enemy, EnemySmall, total;
 	private static final int valorKillAstBig = 20;
+	private static final int valorKillAstMed = 50;
+	private static final int valorKillAstMini = 100;
 	private static final int valorKillEnemy = 200;
+	private static final int valorKillEnemySmall = 1000;
 	private static final String src = "src/stats/stats.csv";
 
 	////////////// setter & getters //////////
@@ -23,11 +24,13 @@ public class Puntos {
 	public int getAstMed() {return AstMed;}
 	public int getAstBig() {return AstBig;}
 	public int getEnemy() {return Enemy;}
+	public int getEnemySmall() {return EnemySmall;}
 	public int getTotal() {sumaTodosLosPuntos(); return this.total;}
 	public void setAstMini(int astMini) {AstMini = astMini;}
 	public void setAstMed(int astMed) {AstMed = astMed;}
 	public void setAstBig(int astBig) {AstBig = astBig;}
 	public void setEnemy(int enemy) {Enemy = enemy;}
+	public void setEnemySmall(int n) {EnemySmall = n;}
 
 	public Puntos(){
 		this.AstMini = this.AstMed = this.AstBig = this.Enemy=0;
@@ -37,6 +40,7 @@ public class Puntos {
 	protected void killAstMed(){setAstMini(getAstMini()+valorKillAstMed);}
 	protected void killAstBig(){setAstMini(getAstMini()+valorKillAstBig);}
 	protected void killEnemy(){setAstMini(getAstMini()+valorKillEnemy);}
+	protected void killEnemySmall(){setAstMini(getAstMini()+valorKillEnemySmall);}
 	protected void sumaTodosLosPuntos(){this.total = getAstMini()+getAstMed()+getAstBig()+getEnemy();}
 
 	protected String leerStats(){
@@ -49,19 +53,16 @@ public class Puntos {
 			br.readLine(); //saltar la primera linea (titulo CSV)
 
             while((line = br.readLine()) != null) {
-                //System.out.println(line);
-                s += line+"\n";
+            	s += line+"\n";
             }
 
             fr.close();
             br.close();
 
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("Archivo de estadisticas no encontrado en "+src);
 		}
-
 		return s;
 	}
 

@@ -33,39 +33,34 @@ public class Asteroide extends Thread{
 	public int getHeight(){return this.height;}
 	public boolean isMuerto() {return this.muerto;}
 	protected void setMuerto(boolean b) {this.muerto = b;}
-	public double getRotation() {return this.rotation;}
+	public double getRotation() {return this.rotation;}				//rot movimiento
+	public double getFactorRotacion() {return this.factorRotacion;} //rot int
 	public double getScale() {return this.escala;}
 	public double getAceleracion() {return this.aceleracion;}
 	public Rectangle getPosicion() {return new Rectangle((int)getPosX(), (int)getPosY(), getWidth(), getHeight());} //devuelve posicion
-	public MyVector getVf() {return this.Vact;}
+	public MyVector getVf() {return this.Vf;}
 	public Image getImg() {return this.imgAsteroide;}
 
 
 	//Constructor para cuando se divide el Asteroide
-	public Asteroide(Mapa mapa, double escala, double a, double x, double y, MyVector Vant, Image img, int width, int height){
+	public Asteroide(Asteroide asteroide, Mapa mapa, double angulo){
 		cargaImagenes();
-		this.escala = escala;
-		this.aceleracion = a;
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
-		this.muerto = false;
-		this.factorRotacion = new Random().nextInt(7 - 2) + 1;
-		this.mapa = mapa;		
-		this.imgAsteroide = img;
-
-		this.rotation = new Random().nextInt(360 - 0) + 0;
-		this.Vact = Vant; //Vector anterior del Padre
-
-		this.Vdir = new MyVector(Math.cos(Math.toRadians(this.rotation)),Math.sin(Math.toRadians(this.rotation)));
-		this.Vimpulso = this.Vdir.MultiplicaVectores(aceleracion);
+		this.x = asteroide.getPosicion().getX();
+		this.y = asteroide.getPosicion().getY();
+		this.aceleracion = asteroide.getAceleracion();
+		this.width = asteroide.getWidth() /2;
+		this.height = asteroide.getHeight() /2;
+		this.imgAsteroide = asteroide.getImg();
+		this.mapa = mapa;
+		this.factorRotacion = asteroide.getFactorRotacion();
+		this.rotation = angulo;
+		this.Vdir = new MyVector(Math.cos(Math.toRadians(this.rotation)), Math.sin(Math.toRadians(this.rotation)));
+		this.Vimpulso = this.Vdir.MultiplicaVectores(this.aceleracion);
 		this.Vf = this.Vimpulso;
 	}
 
 	//Constructor por defecto del Asteroide
 	public Asteroide(Mapa mapa){
-		//cargar las imagenes de los  tipos de asteroide
 		cargaImagenes();
 		this.width = 76;
 		this.height = 76;
@@ -92,7 +87,7 @@ public class Asteroide extends Thread{
 		}
 	}
 
-	protected synchronized void movimiento() {
+	protected void movimiento() {
 		this.x += this.Vf.getX();	//asigna posicion X 
 		this.y += this.Vf.getY();	//asigna posicion Y
 
@@ -100,10 +95,9 @@ public class Asteroide extends Thread{
 		this.rotation += factorRotacion;		
 	}
 
-	protected synchronized void pintaAsteroide(Graphics2D g2d){
+	protected void pintaAsteroide(Graphics2D g2d){
 		Graphics2D g = (Graphics2D) g2d.create();	//crea el objeto a partir de otro graphics
 		g.setColor(Color.red);
-		//g.fillRect((int)x,(int)y,getWidth(), getHeight());
 		g.rotate(Math.toRadians(getRotation()), this.getPosX() + this.width/2, this.getPosY() + this.height/2 );
 		g.drawImage(imgAsteroide, (int)this.getPosX(), (int)this.getPosY(), getWidth(), getHeight(), null);
 	}
@@ -117,7 +111,7 @@ public class Asteroide extends Thread{
 			asteroide1 = ImageIO.read(Launcher.class.getResource("/img/asteroides/1.png"));
 			asteroide2 = ImageIO.read(Launcher.class.getResource("/img/asteroides/2.png"));
 			asteroide3 = ImageIO.read(Launcher.class.getResource("/img/asteroides/3.png"));
-			//Las guarda en el Array
+
 			listaImgAsteroides.push(asteroide0);
 			listaImgAsteroides.push(asteroide1);
 			listaImgAsteroides.push(asteroide2);
@@ -127,6 +121,5 @@ public class Asteroide extends Thread{
 		} 
 		catch (IOException e) {e.printStackTrace();}
 	}
-
 
 }

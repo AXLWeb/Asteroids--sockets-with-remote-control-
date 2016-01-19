@@ -1,27 +1,37 @@
 package v2;
 
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.io.IOException;
+import java.io.InputStream;
+
 public class Launcher {
 
 /**
+ http://www.classicgaming.cc/classics/asteroids/playguide.php
  //TODO:
-  * 
-  * Vdir de los Asteroides nuevos a partir del Vdir del padre (+/-40º)
+  * Fuentes
   * Pantalla inicial & final
-  * Puntos, leer/guardar en file
-  * Sonidos (check)
-  * Crear enemigo grande y pequeño
+  * Sonidos 	//solo suena 1 disparo
+  * UML
+  * Niveles
+  * Sockets		//no
 **/
-	
+	public static Font fuente;
 	public static void main(String[] args) {
+		cargaFuentes();
 		Generador g = new Generador();
 		g.start();
-
-		//pantalla inicio
-		//Juego Mapa
-		//Pantalla final
-
 	}
-	
+
+	public static void cargaFuentes(){	
+		InputStream is = Launcher.class.getResourceAsStream("/fonts/ARCADECLASSIC.TTF");
+		try {
+			fuente = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(20f);
+		} catch (FontFormatException | IOException e) {
+			e.printStackTrace();
+		} 
+	}
 }
 
 
