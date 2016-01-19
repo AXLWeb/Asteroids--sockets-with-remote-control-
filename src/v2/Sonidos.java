@@ -11,9 +11,7 @@ import javax.sound.sampled.LineUnavailableException;
 
 public class Sonidos{
 
-	private Clip clip;
-	AudioInputStream audioInputStream; 
-	
+	private static AudioInputStream audioInputStream; 
 	private static Clip impulsoNave;
 	private static Clip disparo;
 	private static Clip enemyBig;
@@ -30,13 +28,17 @@ public class Sonidos{
 	private static final String explosionMedSRC = "/sound/bangMedium.wav";
 	private static final String explosionBigSRC = "/sound/bangLarge.wav";
 	private static final String sonidoJuegoSRC = "/sound/beatLooped.wav";
-	protected Stack<Clip> listaSonidos = new Stack<>();
 
 	///////////////////////////// setters & getters //////////////////////////////////
-	protected Clip getDisparoMisil(){return this.disparo;}
-	protected Clip getImpulso(){return this.impulsoNave;}
-
-	//TODO: cargar todos los sonidos al inicio
+	protected Clip getImpulso(){return Sonidos.impulsoNave;}
+	protected Clip getDisparoMisil(){return Sonidos.disparo;}
+	protected Clip getEnemyBig(){return Sonidos.enemyBig;}
+	protected Clip getEnemySmall(){return Sonidos.enemySmall;}
+	protected Clip getExploBig(){return Sonidos.explosionBig;}
+	protected Clip getExploMed(){return Sonidos.explosionMed;}
+	protected Clip getExploSmall(){return Sonidos.explosionSmall;}
+	protected Clip getSonidoJuego(){return Sonidos.sonidoJuego;}
+	
 
 	public Sonidos(){
 		cargaSonidos();
@@ -54,9 +56,9 @@ public class Sonidos{
 		
 		try{			
 			if(clip.isOpen()){
-				System.out.println("clip is opened...");
 				clip.start();
-				clip.setMicrosecondPosition(0);		//rebobina el sonido, y se puede reproducir de nuevo
+				clip.setMicrosecondPosition(0);		//rebobina el sonido
+				Thread.sleep(10);
 			}
 		}
 		catch(Exception e){e.printStackTrace();}
@@ -73,23 +75,39 @@ public class Sonidos{
 	}
 
 	private void cargaSonidos(){
-
-		
 		try{
-
 			audioInputStream = AudioSystem.getAudioInputStream(Launcher.class.getResource(impulsoNaveSRC));
 		    impulsoNave = AudioSystem.getClip();
 		    impulsoNave.open(audioInputStream);
-		    
-		    //clip.open():
-		    //Invoking this method on a line which is already open is illegal and may result in an IllegalStateException. 
-		    //Note that some lines, once closed, cannot be reopened. 
-		    //Attempts to reopen such a line will always result in a LineUnavailableException.
 
 		    audioInputStream = AudioSystem.getAudioInputStream(Launcher.class.getResource(disparoSRC));
 		    disparo = AudioSystem.getClip();
 		    disparo.open(audioInputStream);
 		    
+		    audioInputStream = AudioSystem.getAudioInputStream(Launcher.class.getResource(enemyBigSRC));
+		    enemyBig = AudioSystem.getClip();
+		    enemyBig.open(audioInputStream);
+		    
+		    audioInputStream = AudioSystem.getAudioInputStream(Launcher.class.getResource(enemySmallSRC));
+		    enemySmall = AudioSystem.getClip();
+		    enemySmall.open(audioInputStream);
+		    
+		    audioInputStream = AudioSystem.getAudioInputStream(Launcher.class.getResource(explosionSmallSRC));
+		    explosionSmall = AudioSystem.getClip();
+		    explosionSmall.open(audioInputStream);
+		    
+		    audioInputStream = AudioSystem.getAudioInputStream(Launcher.class.getResource(explosionMedSRC));
+		    explosionMed = AudioSystem.getClip();
+		    explosionMed.open(audioInputStream);
+		    
+		    audioInputStream = AudioSystem.getAudioInputStream(Launcher.class.getResource(explosionBigSRC));
+		    explosionBig = AudioSystem.getClip();
+		    explosionBig.open(audioInputStream);
+		    
+		    audioInputStream = AudioSystem.getAudioInputStream(Launcher.class.getResource(sonidoJuegoSRC));
+		    sonidoJuego = AudioSystem.getClip();
+		    sonidoJuego.open(audioInputStream);
+
 		}catch(Exception e){e.printStackTrace();}
 	}
 }

@@ -19,17 +19,16 @@ public class Nave extends Thread  {
 	private Mapa mapa;
 	private Misil misil;
 	private Generador generator;
+	public Sonidos sonidos;
 	private Puntos puntos;
 	private double x, y, velMax, velMin;
-	private int rotation, width, height, vida, vidas, contaSleeps;
+	private int rotation, width, height, vida, vidas;
 	private boolean pulsado, disparo, muerto, derecha, izquierda, arriba;
 	private MyVector Vdir, Vf, Vact, Vimpulso;
 	private String nombreJugador;
 
-
 	///////////////	setters & getters	//////////////////////////////
 	public Image getImage(){return this.NaveVidas;}
-	public Sonidos sonidos;
 	public void setPulsado(boolean b) {this.pulsado = b;}
 	public boolean getPulsado(){return this.pulsado;}
 	public void setRotation(int rotation) {this.rotation = rotation;}
@@ -67,7 +66,7 @@ public class Nave extends Thread  {
 		cargaImgs();
 		this.mapa = mapa;
 		this.generator = g;
-		this.sonidos = generator.getSonidos();
+		this.sonidos = this.mapa.getGenerator().getSonidos();
 
 		this.width = 100;
 		this.height = 40;
@@ -80,7 +79,6 @@ public class Nave extends Thread  {
 		this.pulsado = false;	//des-activa inercia
 		this.muerto = false;
 		this.puntos = new Puntos();
-		this.contaSleeps=0;
 		this.rotation = new Random().nextInt(360-1)+2;	//random de ángulo inicial
 
 		//inicializacion Vectores
@@ -93,14 +91,15 @@ public class Nave extends Thread  {
 	public void run() {
 
 		while(!muerto){
-			//mapa.chocaObjeto(this);
+			mapa.chocaObjeto(this);
 			if(getPulsado()) avanzar();	//activa inercia
 
 			try {sleep(60);}
 			catch (InterruptedException e) {e.printStackTrace();}
 		}
+		
+		killAll();
 	}
-
 
 
 	/******************************************************************
@@ -179,6 +178,14 @@ public class Nave extends Thread  {
 		else g.drawImage(NaveImg, (int)this.getPosX(), (int)this.getPosY(), null);
 	}
 	
+	
+	private void killAll() {
+		//TODO: killAll...
+		if(sonidos.getImpulso().isActive() || sonidos.getImpulso().isRunning()) sonidos.stop(sonidos.getImpulso());
+
+	}
+
+
 	/**
 	 * Carga las img necesarias de la Nave
 	 */

@@ -15,6 +15,7 @@ public class Enemigo extends Thread{
 	private Image enemigoImg; 
 	private Mapa mapa;
 	private Generador generator;
+	public Sonidos sonidos;
 	private double x, y, aceleracion;
 	private int escala, rotation, rotation_inicial, width, height, contaSleeps, contaDisparos;
 	private boolean muerto;
@@ -38,10 +39,11 @@ public class Enemigo extends Thread{
 
 	//Constructor Enemigo	
 	public Enemigo(Mapa mapa, Generador g) {
-
 		cargaImgs();
 		this.generator = g;
 		this.mapa = mapa;
+		this.sonidos = this.mapa.getGenerator().getSonidos();
+
 		this.escala = 2;
 		this.width = 55;
 		this.height = 45;
@@ -60,17 +62,20 @@ public class Enemigo extends Thread{
 	}
 
 
+	//Constructor de Enemigo pequeño
 	public Enemigo(Mapa mapa, Generador g, Enemigo enemigo) {
 		cargaImgs();
 		this.generator = g;
 		this.mapa = mapa;
+		this.sonidos = this.mapa.getGenerator().getSonidos();
+
 		this.escala = 1;
 		this.width = enemigo.getWidth() -25;	//30
 		this.height = enemigo.getHeight() - 25;	//20
 
 		this.y = new Random().nextInt(mapa.getHeight() - 10) + 10;
 		this.x = new Random().nextInt(mapa.getWidth() - 10) + 10;
-		this.aceleracion = new Random().nextInt(5 - 1) + 1;
+		this.aceleracion = new Random().nextInt(10 - 2) + 2;	//+ veloz
 		this.contaSleeps=0;
 		this.rotation_inicial = 0;
 		this.rotation = new Random().nextInt(360-0);	//angulo de movimiento
@@ -85,7 +90,7 @@ public class Enemigo extends Thread{
 
 		while(!muerto){
 			avanzar();
-			//mapa.chocaObjeto(this);
+			mapa.chocaObjeto(this);
 
 			if(contaSleeps > 60) {
 				this.rotation = new Random().nextInt(300-10);	//ángulo movimiento
@@ -96,8 +101,6 @@ public class Enemigo extends Thread{
 			catch (InterruptedException e) {e.printStackTrace();}
 		}
 
-		//TODO: STOP sonido Enemigo 
-		//if(this.isMuerto()) generator.getSonidoEnemigo().stop();
 	}
 
 
@@ -122,6 +125,7 @@ public class Enemigo extends Thread{
 
 	protected void disparar() {
 		generator.generaMisil(this);
+		sonidos.play(sonidos.getDisparoMisil());
 	}
 
 	/**

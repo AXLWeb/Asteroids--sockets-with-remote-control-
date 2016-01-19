@@ -25,6 +25,8 @@ public class Frame extends JFrame implements KeyListener{
 
 	/////////////// setters & getters //////////////////////////////
 	public void setMapa(Mapa mapa) {this.getContentPane().add(mapa);}
+	public void setPantInicial(PantInicial pantInicial) { this.getContentPane().add(pantInicial);}
+	//public void setStats(Estadisticas pantStats) { this.getContentPane().add(pantStats);}
 
 	// Constructor inicial del frame.
 	public Frame(Generador gen) {
@@ -92,5 +94,6 @@ public class Frame extends JFrame implements KeyListener{
 	public void keyTyped(KeyEvent e) {
 		//Not used
 	}
+
 
 }

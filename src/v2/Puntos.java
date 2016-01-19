@@ -50,7 +50,7 @@ public class Puntos {
 			BufferedReader br = new BufferedReader(fr);
 			String line;
 
-			br.readLine(); //saltar la primera linea (titulo CSV)
+			//br.readLine(); //saltar la primera linea (titulo CSV)
 
             while((line = br.readLine()) != null) {
             	s += line+"\n";

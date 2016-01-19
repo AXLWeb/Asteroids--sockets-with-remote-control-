@@ -7,17 +7,50 @@ import java.io.InputStream;
 
 public class Launcher {
 
+	public static Font fuente;
+
 /**
  http://www.classicgaming.cc/classics/asteroids/playguide.php
  //TODO:
   * Fuentes
   * Pantalla inicial & final
-  * Sonidos 	//solo suena 1 disparo
+  * pedir ingresar nombre al morir
   * UML
-  * Niveles
+  * Niveles del MAPA
   * Sockets		//no
 **/
-	public static Font fuente;
+
+/** 
+//TODO: cuando has muerto
+ * jUEGO TERMINADO
+ * Ingresa tu nombre
+ * "AXL"
+ * boton LISTO
+ * 
+ * Mapa vivo de fondo, sin enemigos, los Asteroides que había se mueven
+ * 
+ * Pasa a pantalla estadisiticas
+ */	
+
+/** 
+//TODO: PANTALLA RANKING JUGADORES
+ * 
+ * 2 columnas: NOMBRE y PUNTOS
+ * 
+ * boton JUGAR
+ * 
+ * Fondo negro
+ * 
+ */	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	public static void main(String[] args) {
 		cargaFuentes();
 		Generador g = new Generador();
