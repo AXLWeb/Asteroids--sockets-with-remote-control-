@@ -42,14 +42,6 @@ public class Sonidos{
 
 	public Sonidos(){
 		cargaSonidos();
-
-/*
-		try{
-		    AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(Launcher.class.getResource(src));
-		    clip = AudioSystem.getClip();
-		    clip.open(audioInputStream);
-		}catch(Exception e){e.printStackTrace();}
-*/
 	}
 
 	protected synchronized void play(Clip clip){
@@ -65,12 +57,15 @@ public class Sonidos{
 	}
 
 	protected synchronized void stop(Clip clip){
-		try{clip.stop(); clip.flush();
+		try{
+			clip.stop(); 
+			clip.flush();
 		}catch(Exception e){e.printStackTrace();}
 	}
 	
 	protected synchronized void loop(Clip clip){
-		try{clip.loop(Clip.LOOP_CONTINUOUSLY);
+		try{
+			clip.loop(Clip.LOOP_CONTINUOUSLY);
 		}catch(Exception e){e.printStackTrace();}
 	}
 

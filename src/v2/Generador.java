@@ -9,6 +9,7 @@ public class Generador extends Thread {
 	private Mapa mapa;
 	private Nave nave;
 	private PantInicial pantInicial;
+	private pantScores pantScores;
 	private Sonidos sonidos;
 
 	////////////////////////	setters & getters	//////////////////////////////
@@ -32,28 +33,29 @@ public class Generador extends Thread {
 		if(pantInicial.isVisible()){
 			generaMapaPrevio();
 			generaAsteroide();
-			try {this.sleep(1000);}
-			catch (InterruptedException ex) {ex.printStackTrace();}
 		}
 		
 		if (mapa.isVisible()){
 			while(mapa.isJugando()){
 				if(mapa.getListaAsteroides().size() < mapa.getMax_Asteroides() ){
 					generaAsteroide();
-					try {this.sleep(1000);}
-					catch (InterruptedException ex) {ex.printStackTrace();}
 				}
 			}
 		}
+		
+		if(pantScores.isVisible()){
+			System.out.println("pantScores is visible yet");
+		}
+		
+		try {this.sleep(1000);}
+		catch (InterruptedException ex) {ex.printStackTrace();}
 	}
 
-	protected void gameOver() {
-		sonidos.stop(sonidos.getSonidoJuego());
-		
+	protected void guardaDatosCSV() {
 		String puntos = String.valueOf(nave.getPuntos().getTotal());
 		String nombre = nave.getNombreJugador();
-		nave.getPuntos().writeStats(puntos, nombre);
-		
+		nave.getPuntos().writeStats(puntos, nombre);		//guarda en CSV
+
 		System.out.println(nave.getPuntos().leerStats());
 	}
 
@@ -64,7 +66,8 @@ public class Generador extends Thread {
 	}
 	
 	protected void verStats() {
-		System.out.println("staTss");
+		this.pantScores = new pantScores(this, frame);
+		new Thread(pantScores).start();
 	}
 
 	protected void generaMapaPrevio(){

@@ -19,7 +19,7 @@ public class Nave extends Thread  {
 	private Mapa mapa;
 	private Misil misil;
 	private Generador generator;
-	public Sonidos sonidos;
+	private Sonidos sonidos;
 	private Puntos puntos;
 	private double x, y, velMax, velMin;
 	private int rotation, width, height, vida, vidas;
@@ -37,6 +37,7 @@ public class Nave extends Thread  {
 	public Mapa getMapa(){return this.mapa;}
 	public Misil getMisil(){return this.misil;}
 	protected Puntos getPuntos(){return this.puntos;}
+	protected void setPuntos(){this.puntos = new Puntos();}
 	protected void setImpulso(boolean b){this.arriba = b;}
 	protected void setDisparo(boolean b){this.disparo = b;}
 	public boolean getIzquierda(){return this.izquierda;}
@@ -56,8 +57,10 @@ public class Nave extends Thread  {
 	protected int getWidth() {return this.width;}
 	protected int getHeight() {return this.height;}
 	protected int getVida(){return this.vida;}
+	public void setVida(int i) {this.vida = i;}
 	protected int getVidas(){return this.vidas;}
-	protected synchronized void restaVidaNave() {if(this.vida>1) this.vida--;}
+	public void setVidas(int i) {this.vidas = i;}
+	protected synchronized void restaVidaNave() {if(this.vida>1) this.vida-=10;}
 	protected String getNombreJugador() { if(this.nombreJugador==null) return "AAA"; else return this.nombreJugador;}
 
 
@@ -107,7 +110,7 @@ public class Nave extends Thread  {
 	 ******************************************************************/
 
 	protected synchronized void quitaVidas() {if(this.vidas>0) this.vidas--;}
-	
+
 	protected void avanzar() {
 		mapa.calculaLimitesdelMapa(this, null, null);
 
@@ -137,7 +140,7 @@ public class Nave extends Thread  {
 			this.Vdir = new MyVector(Math.cos(Math.toRadians(getRotation())), Math.sin(Math.toRadians(getRotation())));	//vector director
 		}
 	}
-	
+
 	protected void recalculaVelocidad(){
 		this.Vf = this.Vact.SumaVectores(Vimpulso);						//calcula Vector final
 
@@ -156,7 +159,7 @@ public class Nave extends Thread  {
 		this.y += this.Vf.getY();	//asigna posicion Y a la Nave
 		this.Vact = this.Vf;		//Vector actual = Vector final
 	}
-	
+
 	private void impulsaNave() {
 		this.Vimpulso = this.Vdir.MultiplicaVectores(aceleracion);		//Calcula Vector Impulso
 	}
@@ -177,14 +180,10 @@ public class Nave extends Thread  {
 		}
 		else g.drawImage(NaveImg, (int)this.getPosX(), (int)this.getPosY(), null);
 	}
-	
-	
+
 	private void killAll() {
-		//TODO: killAll...
 		if(sonidos.getImpulso().isActive() || sonidos.getImpulso().isRunning()) sonidos.stop(sonidos.getImpulso());
-
 	}
-
 
 	/**
 	 * Carga las img necesarias de la Nave
@@ -197,6 +196,5 @@ public class Nave extends Thread  {
 		}
 		catch (IOException e) {e.printStackTrace();}
 	}
-
 
 }

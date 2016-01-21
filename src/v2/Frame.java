@@ -26,8 +26,11 @@ public class Frame extends JFrame implements KeyListener{
 	/////////////// setters & getters //////////////////////////////
 	public void setMapa(Mapa mapa) {this.getContentPane().add(mapa);}
 	public void setPantInicial(PantInicial pantInicial) { this.getContentPane().add(pantInicial);}
-	//public void setStats(Estadisticas pantStats) { this.getContentPane().add(pantStats);}
+	public void setStats(pantScores pantScores) { this.getContentPane().add(pantScores);}
+	//public void setNombreJugador(ClassFrame cf) {this.getContentPane().add(cf);}
 
+	
+	
 	// Constructor inicial del frame.
 	public Frame(Generador gen) {
 		this.g= gen;

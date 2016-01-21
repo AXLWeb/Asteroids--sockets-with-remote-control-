@@ -2,6 +2,7 @@ package v2;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -50,8 +51,6 @@ public class Puntos {
 			BufferedReader br = new BufferedReader(fr);
 			String line;
 
-			//br.readLine(); //saltar la primera linea (titulo CSV)
-
             while((line = br.readLine()) != null) {
             	s += line+"\n";
             }
@@ -67,13 +66,19 @@ public class Puntos {
 	}
 
 	protected void writeStats(String puntos, String nombre){
-
 		FileWriter fw = null;
 		BufferedWriter bw = null;
+		boolean exist=false;
+
+		File f = new File(src);
+		if(f.exists() && !f.isDirectory()) {
+		    exist = true;
+		}
 
         try {
-            fw = new FileWriter(src, true);		//boolean indicating whether or not to append the data written.
+            fw = new FileWriter(src, exist);		//boolean indicating whether or not to append the data written.
             bw = new BufferedWriter(fw);
+            if(!exist) bw.write("NOMBRE;PUNTOS\n");  
             bw.write(nombre+";"+puntos);
             bw.newLine();
         }
@@ -87,7 +92,7 @@ public class Puntos {
                 fw.close(); bw.close();
             }catch (IOException e) {
                 e.printStackTrace();
-                System.out.println("Error while flushing/closing fileWriter !!!");
+                System.out.println("Error while flushing/closing fileWriter ");
             }
         }
 	}

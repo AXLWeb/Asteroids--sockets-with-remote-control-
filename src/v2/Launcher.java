@@ -42,15 +42,9 @@ public class Launcher {
  * Fondo negro
  * 
  */	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
+
+
 	public static void main(String[] args) {
 		cargaFuentes();
 		Generador g = new Generador();

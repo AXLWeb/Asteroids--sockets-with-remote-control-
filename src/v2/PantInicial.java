@@ -56,17 +56,9 @@ public class PantInicial extends Canvas implements Runnable, MouseListener{
 		
 		BufferStrategy bs = this.getBufferStrategy();
 		Graphics2D g2d = (Graphics2D) bs.getDrawGraphics();
-		
-		/**
-		 * Titulo + botones
-		 * //TODO: Botones Jugar / Ver ranking
-		 * Mapa vivo de fondo, sin enemigos, Asteroides de todos los tamaños
-		 */
-
 
 		g2d.setColor(Color.black);
 		g2d.fillRect(0, 0, 600, 600);
-
 
 		mapa.pintaAsteroides(g2d);
 
@@ -97,12 +89,11 @@ public class PantInicial extends Canvas implements Runnable, MouseListener{
 		this.setVisible(false);
 		this.g.iniciarJuego();
 	}
-	
+
 	/**
 	 * Muestra el ranking de puntuaciones de los jugadores
 	 */
 	public void verScores(){
-		System.out.println("RANKING puntuaciones: ");
 		this.setVisible(false);
 		this.g.verStats();
 	}
@@ -122,7 +113,6 @@ public class PantInicial extends Canvas implements Runnable, MouseListener{
 	}
 
 	public void killAll() {
-		//kill todos los hilos q haya. Clear ArrayLists...vidas=3.....
 		this.running = false;
 	}
 

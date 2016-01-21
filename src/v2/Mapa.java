@@ -23,6 +23,8 @@ import java.util.Vector;
 import javax.sql.rowset.spi.SyncResolver;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 public class Mapa extends Canvas implements Runnable, MouseListener{
 
@@ -37,11 +39,11 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 	private Generador generator;
 	private int contDisparo, contAsteroidesMuertos, max_Asteroides, nivel;
 	private boolean juego, listo;
+	private String nombreJugador;
 	private volatile Stack<Misil> listaMisiles = new Stack<>();
 	private volatile Stack<Misil> listaMisilesEnemigos = new Stack<>();
 	private volatile Stack<Asteroide> listaAsteroides = new Stack<>();
 	private volatile Stack<Enemigo> listaEnemigos = new Stack<>();
-
 	private Rectangle btnListo;
 
 	///////////////	setters & getters	//////////////////////////////
@@ -66,9 +68,10 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 		setBounds(0,0,999,599);
 		requestFocus();
 		setFocusable(true);
-
+		
+		this.nombreJugador = "";
 		//inicializamos propiedades del Mapa
-		this.juego = true;
+		this.juego = true;	//TODO: true
 		this.listo = false;	//para cambiar de pantalla
 		this.contDisparo=0;
 		this.max_Asteroides = 10;
@@ -116,15 +119,35 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 			catch (InterruptedException e) {e.printStackTrace();}
 		}
 
-		while(!this.isJugando() && !listo){
+		if(!listo){
+			nave.setMuerto(true);
 			misilesKiller(getListaMisiles());
 			misilesKiller(getListaMisilesEnemigo());
+			generator.guardaDatosCSV();
+
+			//TODO: crear new JPanel y ingresar nombre: JInputText + requestFocus()
+			//TODO: pedir ingresar nombre: JInputText + requestFocus()
+			ClassFrame panel = new ClassFrame(generator, generator.getFrame());
+
+//			JTextArea editTextArea = new JTextArea("Indica tu nombre");
+//			editTextArea.setBounds(this.getWidth(), this.getHeight(), 100, 100);
+//			editTextArea.setBackground(Color.BLUE);
+//			editTextArea.setForeground(Color.WHITE);
+
+			//this.generator.getFrame().setNombreJugador(cf);
+			this.generator.getFrame().getContentPane().add(panel);
+			//TODO: try.... ponerlo antes del Canvas (invisible)
+		}
+
+		while(!this.isJugando() && !listo){
 			paint();			//borra del Mapa objetos muertos
-			//TODO: string: "GAME OVER" desaparece a los 2"
 		}
 
 		if(listo){
-			generator.gameOver();
+			sonidos.stop(sonidos.getSonidoJuego());
+			killAll();
+			this.setVisible(false);
+			this.generator.verStats();	//Pasa a pantScores
 		}
 
 	}
@@ -180,7 +203,7 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 					asteroide_actual.setMuerto(true);
 					nave.restaVidaNave();
 					nave.quitaVidas();	//quita 1 vida
-					System.out.println("Nave choca con Asteroide "+asteroide_actual.getName()+" y ambos mueren");
+					//System.out.println("Nave choca con Asteroide "+asteroide_actual.getName()+" y ambos mueren");
 					sonidos.play(sonidos.getExploBig());
 				}
 			}
@@ -193,7 +216,7 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 					getListaEnemigos().get(i).setMuerto(true);
 					nave.restaVidaNave();
 					nave.quitaVidas();	//quita 1 vida
-					System.out.println("Nave choca con enemigo y ambos mueren");
+					//System.out.println("Nave choca con enemigo y ambos mueren");
 					sonidos.play(sonidos.getExploBig());
 				}				
 			}
@@ -432,10 +455,15 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 		    pintaMisilesEnemy(g2d);
 		}
 		else{
+			/*
 			this.addMouseListener(this);
+			requestFocus();
 			pintaAsteroides(g2d);
-			//TODO: pedir ingresar nombre
+
 			g2d.setColor(Color.white);
+			g2d.drawString("PUNTOS ", this.getWidth()/2-80, this.getHeight()/2-70);
+			g2d.drawString(nave.getPuntos().getTotal()+"", this.getWidth()/2, this.getHeight()/2-70);
+
 			g2d.drawString("Ingresa tu nombre ", this.getWidth()/2-80, this.getHeight()/2-50);
 			g2d.setColor(Color.yellow);
 			g2d.drawString("AXL", this.getWidth()/2-80, this.getHeight()/2-30);
@@ -443,9 +471,10 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 			//boton LISTO
 			g2d.setColor(Color.white);
 			g2d.drawString("LISTO", this.getWidth()/2-10, this.getHeight()/2);
-			g2d.setColor(Color.black);
-			btnListo = new Rectangle(this.getWidth()/2-80, this.getHeight()/2-20, 200, 30); //Rectangle boton LISTO
-			g2d.draw(btnListo.getBounds());
+			//area de interacción(Rectangle) del boton LISTO
+			btnListo = new Rectangle(this.getWidth()/2-80, this.getHeight()/2-20, 200, 30);
+			*/
+			
 		}
 
 		//muestra TODOS los gráficos en el Canvas
@@ -532,36 +561,21 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 	 *  - reinicia variables 
 	 */
 	protected void killAll(){
-		//kill todos los hilos q haya. Clear ArrayLists...vidas=3.....
 		enemigosKiller(getListaEnemigos());
 		asteroidesKiller(getListaAsteroides());
-
 
 		//reset listas
 		getListaEnemigos().removeAllElements();
 		getListaAsteroides().removeAllElements();
 		getListaMisilesEnemigo().removeAllElements();
 		getListaMisiles().removeAllElements();
-
-		System.out.println("getListaEnemigos "+getListaEnemigos().size());
-		System.out.println("getListaAsteroides "+getListaAsteroides().size());
-		System.out.println("getListaMisilesEnemigo "+getListaMisilesEnemigo().size());
-		System.out.println("getListaMisiles "+getListaMisiles().size());
-
 		System.out.println("Listas reiniciadas");
-	}
-	
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		Rectangle mouse = new Rectangle(e.getX(), e.getY(), 10, 10);
-		if (mouse.intersects(btnListo)){
-			System.out.println("boton listo");
-			this.setVisible(false);
-			killAll();
-			listo = true;
-			//TODO:
-			//Pasa a pantalla estadisiticas
-		}
+		
+		//reset variables
+		nave.setVida(100);
+		nave.setVidas(3);
+		nave.setPuntos();
+		nave.setMuerto(false);
 	}
 
 	private void enemigosKiller(Stack<Enemigo> lista) {
@@ -580,6 +594,13 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 		for(int i=0; i<lista.size(); i++){
 			lista.get(i).setMuerto(true);
 		}
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		Rectangle mouse = new Rectangle(e.getX(), e.getY(), 10, 10);
+		if (mouse.intersects(btnListo)) listo = true;
+		else listo = false;
 	}
 
 	@Override
