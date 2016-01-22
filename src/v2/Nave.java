@@ -4,12 +4,9 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.io.IOException;
-import java.net.URL;
 import java.util.Random;
-import java.util.Vector;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 
 public class Nave extends Thread  {
 
@@ -61,7 +58,8 @@ public class Nave extends Thread  {
 	protected int getVidas(){return this.vidas;}
 	public void setVidas(int i) {this.vidas = i;}
 	protected synchronized void restaVidaNave() {if(this.vida>1) this.vida-=10;}
-	protected String getNombreJugador() { if(this.nombreJugador==null) return "AAA"; else return this.nombreJugador;}
+	protected String getNombreJugador() { return this.nombreJugador;}
+	protected void setNombreJugador(String name) { this.nombreJugador = name;}
 
 
 	/////////////// Constructor de Nave	///////////////
@@ -70,7 +68,7 @@ public class Nave extends Thread  {
 		this.mapa = mapa;
 		this.generator = g;
 		this.sonidos = this.mapa.getGenerator().getSonidos();
-
+		this.nombreJugador = "";
 		this.width = 100;
 		this.height = 40;
 		this.x = mapa.getWidth()/2;
@@ -182,7 +180,8 @@ public class Nave extends Thread  {
 	}
 
 	private void killAll() {
-		if(sonidos.getImpulso().isActive() || sonidos.getImpulso().isRunning()) sonidos.stop(sonidos.getImpulso());
+		if(sonidos.getImpulso().isActive() || sonidos.getImpulso().isRunning()) 
+			sonidos.stop(sonidos.getImpulso());
 	}
 
 	/**

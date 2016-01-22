@@ -1,13 +1,8 @@
 package v2;
 
-import java.awt.Image;
-import java.io.IOException;
-import java.util.Stack;
-
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
 
 public class Sonidos{
 
@@ -45,15 +40,13 @@ public class Sonidos{
 	}
 
 	protected synchronized void play(Clip clip){
-		
 		try{			
 			if(clip.isOpen()){
 				clip.start();
 				clip.setMicrosecondPosition(0);		//rebobina el sonido
 				Thread.sleep(10);
 			}
-		}
-		catch(Exception e){e.printStackTrace();}
+		}catch(Exception e){e.printStackTrace();}
 	}
 
 	protected synchronized void stop(Clip clip){

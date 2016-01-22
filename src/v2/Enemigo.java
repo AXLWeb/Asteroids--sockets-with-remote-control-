@@ -4,11 +4,9 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.io.IOException;
-import java.net.URL;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 
 public class Enemigo extends Thread{
 
@@ -17,7 +15,7 @@ public class Enemigo extends Thread{
 	private Generador generator;
 	public Sonidos sonidos;
 	private double x, y, aceleracion;
-	private int escala, rotation, rotation_inicial, width, height, contaSleeps, contaDisparos;
+	private int escala, rotation, rotation_inicial, width, height, contaSleeps;
 	private boolean muerto;
 	private MyVector Vdir, Vf, Vimpulso;
 
@@ -97,7 +95,7 @@ public class Enemigo extends Thread{
 				disparar();
 				contaSleeps=0;
 			}
-			try {sleep(60); contaSleeps++; contaDisparos++;}
+			try {sleep(60); contaSleeps++;}
 			catch (InterruptedException e) {e.printStackTrace();}
 		}
 

@@ -7,7 +7,8 @@ import java.io.InputStream;
 
 public class Launcher {
 
-	public static Font fuente;
+	public static Font arcade, titulo, courierNew;
+	public static InputStream is;
 
 /**
  http://www.classicgaming.cc/classics/asteroids/playguide.php
@@ -52,9 +53,18 @@ public class Launcher {
 	}
 
 	public static void cargaFuentes(){	
-		InputStream is = Launcher.class.getResourceAsStream("/fonts/ARCADECLASSIC.TTF");
+
 		try {
-			fuente = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(20f);
+			is = Launcher.class.getResourceAsStream("/fonts/Adore64.ttf");
+			titulo = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(25f);
+			
+			is = Launcher.class.getResourceAsStream("/fonts/ARCADECLASSIC.TTF");
+			arcade = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(16f);
+						
+			is = Launcher.class.getResourceAsStream("/fonts/cour.ttf");
+			courierNew = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(16f);
+			
+			
 		} catch (FontFormatException | IOException e) {
 			e.printStackTrace();
 		} 

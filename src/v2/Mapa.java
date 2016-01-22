@@ -2,29 +2,18 @@ package v2;
 
 import java.awt.Canvas;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferStrategy;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Random;
 import java.util.Stack;
-import java.util.Vector;
 
-import javax.sql.rowset.spi.SyncResolver;
 import javax.swing.ImageIcon;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
 public class Mapa extends Canvas implements Runnable, MouseListener{
 
@@ -36,6 +25,8 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 	private static Image fondo = icoFondo.getImage();
 	public static Sonidos sonidos;
 	private Nave nave;
+	private pantNombre pantNombre;
+	private Frame frame;
 	private Generador generator;
 	private int contDisparo, contAsteroidesMuertos, max_Asteroides, nivel;
 	private boolean juego, listo;
@@ -48,6 +39,7 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 
 	///////////////	setters & getters	//////////////////////////////
 	public void setNave(Nave n) {this.nave = n;}
+	public Thread getThread() {return this.t;}
 	public Nave getNave() {return this.nave;}
 	public Mapa getMapa() {return this;}
 	public int getMax_Asteroides(){return this.max_Asteroides;}
@@ -63,21 +55,23 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 	public Dimension getPreferredSize() {return new Dimension(getWidth(), getHeight());}
 
 	//Constructor de Mapa
-	public Mapa(Generador g){
+	public Mapa(Generador g, Frame frame){
+		this.generator = g;
+		this.frame = frame;
 		//Creamos el panel con sus propiedades
-		setBounds(0,0,999,599);
+		setBounds(0,0,999,699);
 		requestFocus();
 		setFocusable(true);
-		
+
 		this.nombreJugador = "";
 		//inicializamos propiedades del Mapa
-		this.juego = true;	//TODO: true
+		this.juego = true;
 		this.listo = false;	//para cambiar de pantalla
 		this.contDisparo=0;
 		this.max_Asteroides = 10;
-		this.generator = g;
 		this.contAsteroidesMuertos=0;
 		Mapa.sonidos = generator.getSonidos();
+		this.pantNombre = this.generator.getPantNombre();
 	}
 
 
@@ -98,11 +92,8 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 		this.createBufferStrategy(2);
 
 		while(this.isJugando()){
-
 			paint();
 
-			//TODO: Niveles
-			
 			if(getListaAsteroides().size() < getMax_Asteroides()) generator.generaAsteroide();
 
 			if(contAsteroidesMuertos > 4) {
@@ -122,21 +113,8 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 		if(!listo){
 			nave.setMuerto(true);
 			misilesKiller(getListaMisiles());
+			enemigosKiller(getListaEnemigos());
 			misilesKiller(getListaMisilesEnemigo());
-			generator.guardaDatosCSV();
-
-			//TODO: crear new JPanel y ingresar nombre: JInputText + requestFocus()
-			//TODO: pedir ingresar nombre: JInputText + requestFocus()
-			ClassFrame panel = new ClassFrame(generator, generator.getFrame());
-
-//			JTextArea editTextArea = new JTextArea("Indica tu nombre");
-//			editTextArea.setBounds(this.getWidth(), this.getHeight(), 100, 100);
-//			editTextArea.setBackground(Color.BLUE);
-//			editTextArea.setForeground(Color.WHITE);
-
-			//this.generator.getFrame().setNombreJugador(cf);
-			this.generator.getFrame().getContentPane().add(panel);
-			//TODO: try.... ponerlo antes del Canvas (invisible)
 		}
 
 		while(!this.isJugando() && !listo){
@@ -145,11 +123,32 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 
 		if(listo){
 			sonidos.stop(sonidos.getSonidoJuego());
-			killAll();
 			this.setVisible(false);
-			this.generator.verStats();	//Pasa a pantScores
-		}
+			if(nave.getNombreJugador().equals("")) {
+				this.generator.cogeNombreJugador();
 
+				/*
+				if(this.generator.getPantNombre().isRunning()) {
+					this.generator.getPantNombre().poneWait(this);
+					//TODO stop sonidos
+				}
+				*/
+
+				while(this.generator.getPantNombre().isRunning()){
+					this.generator.getPantNombre().repaint();
+				}
+				generator.guardaDatosCSV();
+			}
+			else{
+				System.out.println("guardando CSV...");
+				generator.guardaDatosCSV();
+			}
+
+			this.setVisible(false);
+			generator.verStats();
+			killAll();
+		}
+		
 	}
 
 	/**
@@ -203,7 +202,6 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 					asteroide_actual.setMuerto(true);
 					nave.restaVidaNave();
 					nave.quitaVidas();	//quita 1 vida
-					//System.out.println("Nave choca con Asteroide "+asteroide_actual.getName()+" y ambos mueren");
 					sonidos.play(sonidos.getExploBig());
 				}
 			}
@@ -216,7 +214,6 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 					getListaEnemigos().get(i).setMuerto(true);
 					nave.restaVidaNave();
 					nave.quitaVidas();	//quita 1 vida
-					//System.out.println("Nave choca con enemigo y ambos mueren");
 					sonidos.play(sonidos.getExploBig());
 				}				
 			}
@@ -268,7 +265,7 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 						}
 					}
 					else if(misil_actual.getEnemigo() != null){
-						System.out.println("ha sido misil del enemigo, nada q hacer...");
+						//System.out.println("ha sido misil del enemigo, nada q hacer...");
 					}
 					misil_muere = true;
 				}
@@ -285,7 +282,6 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 		//si es un Misil de Enemigo y NO es de Nave
 		if(misil.getEnemigo() != null && misil.getNave()==null){
 			if(chocan2Objetos(misil.getPosicion(), nave.getPosicion())){
-				System.out.println("Misil enemigo choca con Nave");
 				misil_muere = true;
 				nave.restaVidaNave();
 				nave.quitaVidas();	//quita 1 vida
@@ -309,7 +305,6 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 					if(chocan2Objetos(misil.getPosicion(), misil_nave.getPosicion())){
 						misil_muere = true;
 						misil_nave.setMuerto(true);
-						System.out.println("misil de enemigo Choca con misil de Nave y ambos mueren");
 					}
 				}
 			}
@@ -322,7 +317,6 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 						if(misil.getEnemigo() != misil_enemy.getEnemigo()){
 							misil_muere = true;
 							misil_enemy.setMuerto(true);
-							System.out.println("2 misiles de enemigos que chocan entre sí");
 						}
 					}
 				}
@@ -336,7 +330,6 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 					if(chocan2Objetos(misil.getPosicion(), misil_enemy.getPosicion())){
 						misil_muere=true;
 						misil_enemy.setMuerto(true);
-						System.out.println("misil de nave Choca con misil enemigo y ambos mueren");
 					}
 				}
 			}
@@ -433,7 +426,7 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 		Graphics2D g2d = (Graphics2D) bs.getDrawGraphics();
 		g2d.drawImage(fondo, 0, 0, null); 		//pintar img fondo
 		g2d.setColor(Color.white);
-		g2d.setFont(Launcher.fuente);
+		g2d.setFont(Launcher.arcade);
 
 		if(this.isJugando()) {
 			g2d.drawString(nave.getPuntos().getTotal()+"", 10, 21);					//puntos
@@ -448,6 +441,8 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 			g2d.setColor(Color.white);
 			g2d.fillRect(this.getWidth()-110, 26, nave.getVida(), 10);				//barra vida
 
+			g2d.drawString(nave.getNombreJugador()+"", this.getWidth()-50, 20);
+
 			pintaMisiles(g2d);
 		    pintaAsteroides(g2d);
 		    pintaNave(g2d);
@@ -455,26 +450,22 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 		    pintaMisilesEnemy(g2d);
 		}
 		else{
-			/*
 			this.addMouseListener(this);
 			requestFocus();
 			pintaAsteroides(g2d);
 
 			g2d.setColor(Color.white);
-			g2d.drawString("PUNTOS ", this.getWidth()/2-80, this.getHeight()/2-70);
+			g2d.setFont(Launcher.arcade);
+			g2d.drawString("PUNTOS ", this.getWidth()/2-100, this.getHeight()/2-70);
+			g2d.setFont(Launcher.titulo);
 			g2d.drawString(nave.getPuntos().getTotal()+"", this.getWidth()/2, this.getHeight()/2-70);
-
-			g2d.drawString("Ingresa tu nombre ", this.getWidth()/2-80, this.getHeight()/2-50);
-			g2d.setColor(Color.yellow);
-			g2d.drawString("AXL", this.getWidth()/2-80, this.getHeight()/2-30);
 
 			//boton LISTO
 			g2d.setColor(Color.white);
+			g2d.setFont(Launcher.arcade);
 			g2d.drawString("LISTO", this.getWidth()/2-10, this.getHeight()/2);
 			//area de interacción(Rectangle) del boton LISTO
 			btnListo = new Rectangle(this.getWidth()/2-80, this.getHeight()/2-20, 200, 30);
-			*/
-			
 		}
 
 		//muestra TODOS los gráficos en el Canvas
@@ -576,6 +567,9 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 		nave.setVidas(3);
 		nave.setPuntos();
 		nave.setMuerto(false);
+		
+		//mata hilo MAPA
+		Mapa.t=null;
 	}
 
 	private void enemigosKiller(Stack<Enemigo> lista) {

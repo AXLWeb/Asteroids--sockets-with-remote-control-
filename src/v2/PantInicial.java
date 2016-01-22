@@ -4,8 +4,6 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferStrategy;
@@ -28,9 +26,10 @@ public class PantInicial extends Canvas implements Runnable, MouseListener{
 		this.frame = frame;
 		this.mapa = mapa;
 		this.frame.setBounds(100, 100, 600, 400);
+		this.frame.setTitle("Asteroids inicial");
 		this.frame.getContentPane().add(this);
 
-		setBounds(0, 0, 500, 400);
+		setBounds(0, 0, 600, 500);
 		requestFocus();
 		setFocusable(true);
 
@@ -53,30 +52,34 @@ public class PantInicial extends Canvas implements Runnable, MouseListener{
 	}
 
 	public synchronized void paint(){
-		
+
 		BufferStrategy bs = this.getBufferStrategy();
+		if(bs == null) return;
+
 		Graphics2D g2d = (Graphics2D) bs.getDrawGraphics();
+		if(g2d == null)  return;
 
 		g2d.setColor(Color.black);
-		g2d.fillRect(0, 0, 600, 600);
+		g2d.fillRect(0, 0, this.getWidth(), this.getHeight());
 
 		mapa.pintaAsteroides(g2d);
 
 		g2d.setColor(Color.white);
+		g2d.setFont(Launcher.arcade);
 		g2d.drawString("PLAY", getWidth()/2-50, getHeight()/2);
 		g2d.drawString("SCORES", getWidth()/2-50, getHeight()/2+40);
-		
+
 		btnJugar = new Rectangle(this.getWidth()/2-125, this.getHeight()/2-20, 200, 30); //Rectangle boton LISTO
 		g2d.setColor(Color.red);
 		g2d.draw(btnJugar.getBounds());
-		
+
 		btnScores = new Rectangle(this.getWidth()/2-125, this.getHeight()/2+20, 200, 30);
 		g2d.setColor(Color.gray);
 		g2d.draw(btnScores.getBounds());
 
 		g2d.setColor(Color.white);
-		g2d.setFont(Launcher.fuente);
-		g2d.drawString("ASTEROIDS", getWidth()/2-80, getHeight()/2-80);
+		g2d.setFont(Launcher.titulo);
+		g2d.drawString("ASTEROIDS", getWidth()/2-133, getHeight()/2-80);
 		
 		g2d.dispose();
 		bs.show();

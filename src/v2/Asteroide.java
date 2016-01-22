@@ -3,15 +3,12 @@ package v2;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.io.IOException;
-import java.net.URL;
 import java.util.Random;
 import java.util.Stack;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 
 public class Asteroide extends Thread{
 

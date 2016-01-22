@@ -1,12 +1,8 @@
 package v2;
 
-import java.awt.Canvas;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.image.BufferStrategy;
 
 public class Misil extends Thread {
 	private Nave nave;

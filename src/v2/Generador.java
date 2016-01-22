@@ -1,8 +1,5 @@
 package v2;
 
-import java.awt.Image;
-import java.awt.Rectangle;
-
 public class Generador extends Thread {
 
 	private Frame frame;
@@ -10,6 +7,7 @@ public class Generador extends Thread {
 	private Nave nave;
 	private PantInicial pantInicial;
 	private pantScores pantScores;
+	private pantNombre pantNombre;
 	private Sonidos sonidos;
 
 	////////////////////////	setters & getters	//////////////////////////////
@@ -17,52 +15,56 @@ public class Generador extends Thread {
 	public Frame getFrame(){return this.frame;}
 	public Nave getNave() {return this.nave;}
 	public Sonidos getSonidos() {return this.sonidos;}
+	public pantNombre getPantNombre() {return this.pantNombre;}
 
 	//Constructor
 	public Generador() {
-		sonidos = new Sonidos();
+		try{
+			sonidos = new Sonidos();
+		}catch(Exception e){ e.printStackTrace();}
+
 		this.frame = new Frame(this);
-		this.mapa = new Mapa(this);
+		this.mapa = new Mapa(this, frame);
 		mapa.setVisible(false);
 
 		this.pantInicial = new PantInicial(this, frame, mapa);
-		new Thread(pantInicial).start();
+		pantInicial.setVisible(true);
 	}
 
 	public void run(){
 		if(pantInicial.isVisible()){
 			generaMapaPrevio();
 			generaAsteroide();
+			
+			System.out.println("Esta en pantalla inicial");
 		}
 		
 		if (mapa.isVisible()){
+			
+			System.out.println("Esta en Mapa");
+			
 			while(mapa.isJugando()){
 				if(mapa.getListaAsteroides().size() < mapa.getMax_Asteroides() ){
 					generaAsteroide();
 				}
 			}
 		}
-		
-		if(pantScores.isVisible()){
-			System.out.println("pantScores is visible yet");
-		}
-		
-		try {this.sleep(1000);}
+
+		try {Thread.sleep(1000);}
 		catch (InterruptedException ex) {ex.printStackTrace();}
 	}
 
 	protected void guardaDatosCSV() {
 		String puntos = String.valueOf(nave.getPuntos().getTotal());
 		String nombre = nave.getNombreJugador();
-		nave.getPuntos().writeStats(puntos, nombre);		//guarda en CSV
+		nombre = nombre.toUpperCase();
+
+		if((nombre != null && nombre != "") && (puntos != null && puntos != ""))
+			nave.getPuntos().writeStats(puntos, nombre);		//guarda en CSV
+		else
+			System.out.println("No se ha podido guarda los datos en el fichero CSV...");
 
 		System.out.println(nave.getPuntos().leerStats());
-	}
-
-	protected void iniciarJuego() {
-		generaMapa();
-		generaNave();
-		mapa.start();
 	}
 	
 	protected void verStats() {
@@ -70,10 +72,36 @@ public class Generador extends Thread {
 		new Thread(pantScores).start();
 	}
 
+	protected void cogeNombreJugador() {
+		this.pantNombre = new pantNombre(this, frame); 
+		new Thread(pantNombre).start();
+	}
+
+	protected void iniciarJuego() {
+		this.mapa = new Mapa(this, frame);
+		mapa.setVisible(false);
+
+		generaMapa();
+		generaNave();
+		mapa.start();
+	}
+	
+	protected void iniciarMapaPrevio(){
+		this.mapa = new Mapa(this, frame);
+		mapa.setVisible(true);
+		this.pantInicial = new PantInicial(this, frame, mapa);
+		pantInicial.setVisible(true);
+		this.frame.pack();
+		generaMapaPrevio();
+		generaAsteroide();
+	}
+	
 	protected void generaMapaPrevio(){
 		this.frame.setPantInicial(this.pantInicial);
 		this.frame.setBounds(100, 100, this.pantInicial.getWidth(), this.pantInicial.getHeight());
+		this.frame.setTitle("Asteroids");
 		pantInicial.setVisible(true);
+		new Thread(pantInicial).start();
 	}
 
 	protected void generaMapa(){
