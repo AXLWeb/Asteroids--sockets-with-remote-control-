@@ -42,13 +42,10 @@ public class pantScores extends JPanel implements Runnable, ActionListener{
 		this.frame.setTitle("Puntuaciones");
 		this.frame.setBackground(Color.BLACK);
 		this.frame.getContentPane().add(this);
-		
 		this.running = true;
-		
 		setVisible(true);
-		setPreferredSize(new Dimension(500,700));
+		setPreferredSize(new Dimension(500,500));
 		setBounds(0, 0, this.frame.getWidth(), this.frame.getHeight());
-		//setBounds(0, 0, 500, 316);	//JPanel
 		requestFocus();
 		setFocusable(true);
 		setLayout(null);
@@ -59,7 +56,7 @@ public class pantScores extends JPanel implements Runnable, ActionListener{
 		btnVolver.setForeground(Color.WHITE);
 		btnVolver.setActionCommand("volver");
 		btnVolver.addActionListener(this);
-		add(btnVolver);
+		//add(btnVolver);
 
 		btnJugar = new JButton("Jugar");
 		btnJugar.setFont(Launcher.arcade);
@@ -67,7 +64,7 @@ public class pantScores extends JPanel implements Runnable, ActionListener{
 		btnJugar.setForeground(Color.WHITE);
 		btnJugar.setActionCommand("jugar");
 		btnJugar.addActionListener(this);
-		add(btnJugar);
+		//add(btnJugar);
 
 
 		model = new DefaultTableModel();
@@ -135,8 +132,10 @@ public class pantScores extends JPanel implements Runnable, ActionListener{
             fr.close();
             br.close();
 
-            btnVolver.setBounds(60,table.getHeight()+5,99,25);
-            btnJugar.setBounds(this.frame.getWidth()/2,table.getHeight()+5,99,25);
+            btnVolver.setBounds(60,frame.getHeight()-75,99,25);
+            btnJugar.setBounds(this.frame.getWidth()/2,frame.getHeight()-75,99,25);
+            add(btnVolver);
+            add(btnJugar);
 
 		} catch (Exception e) {
 			e.printStackTrace();

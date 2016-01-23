@@ -23,7 +23,7 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 	private static URL imgFondo = Mapa.class.getResource(imagePath); 
 	private static ImageIcon icoFondo = new ImageIcon(imgFondo);
 	private static Image fondo = icoFondo.getImage();
-	public static Sonidos sonidos;
+	private static Sonidos sonidos;
 	private Nave nave;
 	private pantNombre pantNombre;
 	private Frame frame;
@@ -127,28 +127,16 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 			if(nave.getNombreJugador().equals("")) {
 				this.generator.cogeNombreJugador();
 
-				/*
-				if(this.generator.getPantNombre().isRunning()) {
-					this.generator.getPantNombre().poneWait(this);
-					//TODO stop sonidos
-				}
-				*/
-
 				while(this.generator.getPantNombre().isRunning()){
 					this.generator.getPantNombre().repaint();
 				}
-				generator.guardaDatosCSV();
-			}
-			else{
-				System.out.println("guardando CSV...");
-				generator.guardaDatosCSV();
 			}
 
+			generator.guardaDatosCSV();
 			this.setVisible(false);
 			generator.verStats();
 			killAll();
 		}
-		
 	}
 
 	/**
@@ -434,13 +422,13 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 
 			int vidas = nave.getVidas();
 			for(int i=1; i<=vidas; i++) {g2d.drawImage(nave.getImage(), -10+i*22, 30, null);} 	//cargar img de vidas
-
+/*
 			g2d.drawString(nave.getVidas()+" vidas", this.getWidth()-130, 20);		//Numero de vidas
 			g2d.setColor(Color.gray);
 			g2d.drawRect(this.getWidth()-110, 25, 100, 11);							//borde de la barra vida
 			g2d.setColor(Color.white);
 			g2d.fillRect(this.getWidth()-110, 26, nave.getVida(), 10);				//barra vida
-
+*/
 			g2d.drawString(nave.getNombreJugador()+"", this.getWidth()-50, 20);
 
 			pintaMisiles(g2d);
@@ -483,7 +471,7 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 	/**
 	 * Pinta los misiles disparados por la Nave en el mapa y elimina los muertos
 	 */
-	private void pintaMisiles(Graphics2D g2d){
+	protected void pintaMisiles(Graphics2D g2d){
 		if(!getListaMisiles().empty()){
 			for(int i=0; i < getListaMisiles().size(); i++){
 				if(!getListaMisiles().get(i).isMuerto()) {
@@ -584,7 +572,7 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 		}
 	}
 	
-	protected void misilesKiller(Stack<Misil> lista){
+	private void misilesKiller(Stack<Misil> lista){
 		for(int i=0; i<lista.size(); i++){
 			lista.get(i).setMuerto(true);
 		}

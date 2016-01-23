@@ -15,8 +15,8 @@ public class pantNombre extends JPanel implements Runnable, ActionListener{
 	private static final long serialVersionUID = 1L;
 	private Frame frame;
 	private Generador g;
-	private Mapa mapa;
-	private boolean running, listo;
+	//private Mapa mapa;
+	private boolean running; // listo;
 	private JButton btnListo;
 	private JTextField txtIndicaTuNombre;
 	private String nombreJugador;
@@ -28,7 +28,7 @@ public class pantNombre extends JPanel implements Runnable, ActionListener{
 	public pantNombre(Generador g, Frame frame) {
 		this.g = g;
 		this.frame = frame;
-		this.mapa = g.getMapa();
+		//this.mapa = g.getMapa();
 		this.frame.setBounds(100, 100, 500, 400);
 		//this.frame.setResizable(false);
 		this.frame.setTitle("Asteroids");
@@ -83,40 +83,18 @@ public class pantNombre extends JPanel implements Runnable, ActionListener{
 		this.frame.pack();		//lo minimiza
 	}
 
-	public void killAll() {
+	private void killAll() {
 		this.running = false;
 	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getActionCommand().equals("listo")) {
-			listo = true;
+			//listo = true;
 			running = false;
 			nombreJugador = txtIndicaTuNombre.getText();
 			this.g.getNave().setNombreJugador(nombreJugador);
 		}
 	}
-
-/*
-	private void despiertaMapa(Mapa mapa) {notifyAll();}
-	private void despiertaMapa(Nave nave) {notifyAll();}
-
-	public synchronized void poneWait(Nave nave){
-		while(this.isRunning()){
-			try {wait();}
-			catch (InterruptedException e1) {e1.printStackTrace();}
-		}
-		despiertaMapa(nave);
-	}
-
-	public synchronized void poneWait(Mapa mapa){
-		while(this.isRunning()){
-			try {wait();}
-			catch (InterruptedException e1) {e1.printStackTrace();}
-		}
-		despiertaMapa(mapa);
-	}
-*/
-
 
 }

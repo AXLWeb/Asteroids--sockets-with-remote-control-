@@ -26,7 +26,7 @@ public class PantInicial extends Canvas implements Runnable, MouseListener{
 		this.frame = frame;
 		this.mapa = mapa;
 		this.frame.setBounds(100, 100, 600, 400);
-		this.frame.setTitle("Asteroids inicial");
+		this.frame.setTitle("Asteroids");
 		this.frame.getContentPane().add(this);
 
 		setBounds(0, 0, 600, 500);
