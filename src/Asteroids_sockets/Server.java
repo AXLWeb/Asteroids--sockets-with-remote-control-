@@ -40,7 +40,7 @@ public class Server extends Thread {
 				System.out.println("Waiting for a client...");
 				clientSock = serverSock.accept();
 				System.out.println("Client connection from " + clientSock.getInetAddress().getHostAddress());
-				
+
 				loggedUser = true;
 				// Get I/O streams from the socket
 				in = new BufferedReader(new InputStreamReader(clientSock.getInputStream()));
@@ -54,7 +54,7 @@ public class Server extends Thread {
 				System.out.println("Client connection closed\n");
 			}
 
-		} catch (Exception e) { 
+		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println(e);
 		}
