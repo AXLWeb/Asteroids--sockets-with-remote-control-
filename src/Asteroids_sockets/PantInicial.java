@@ -83,8 +83,7 @@ public class PantInicial extends Canvas implements Runnable, MouseListener{
 		g2d.setColor(Color.white);
 		g2d.setFont(Launcher.titulo);
 		g2d.drawString("ASTEROIDS", getWidth()/2-133, getHeight()/2-80);
-		
-		//TODO: esto aqui....
+
 		if(!g.getServer().isLogged() && pintaAviso){
 			g2d.setColor(Color.RED);
 			g2d.setFont(Launcher.arcade);
@@ -100,6 +99,7 @@ public class PantInicial extends Canvas implements Runnable, MouseListener{
 	 */
 	public void jugar(){
 		this.setVisible(false);
+		//TODO: if cliente.isLogged()
 		if(g.getServer().isLogged()) this.g.iniciarJuego();
 	}
 

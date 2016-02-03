@@ -7,8 +7,6 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-
-
 //pag 782 Libro Killer Game Programming in Java 
 
 public class Server extends Thread {
@@ -48,7 +46,8 @@ public class Server extends Thread {
 				in = new BufferedReader(new InputStreamReader(clientSock.getInputStream()));
 				out = new PrintWriter(clientSock.getOutputStream(), true);
 
-				processClient(in, out); // interact with a client		//TODO new Thread
+				//TODO new Cliente Thread ..... then:
+				//processClient(in, out); // interact with a client
 
 				// Close client connection
 				clientSock.close();
@@ -73,10 +72,7 @@ public class Server extends Thread {
 					done = true;
 				}
 				else {
-					separador = line.split(";");
-					tipo = Integer.valueOf(separador[0]);
-					msg = separador[1];
-					
+
 					System.out.println("Client msg: " + line);
 					if (line.trim().equals("bye") || line.trim().equals("close") || line.trim().equals("exit")){
 						done = true;
@@ -84,6 +80,9 @@ public class Server extends Thread {
 						out.println("byebye");
 					}
 					else{
+						separador = line.split(";");
+						tipo = Integer.valueOf(separador[0]);
+						msg = separador[1];
 						doRequest(out, tipo, msg);
 					}
 				}
@@ -96,67 +95,68 @@ public class Server extends Thread {
 
 	private void doRequest(PrintWriter out, int tipo, String msg) {
 
-		if(tipo==1){
-			/////////  Pressed buttons ///////////
-			switch(msg){
-				case "up down":
-					//out.println("sube");
-					g.getNave().setPulsado(true);
-					if(!g.getNave().isMuerto()){
-						g.getNave().setImpulso(true);
-						g.getNave().avanzar();
-					}
-					break;
+		if(loggedUser && g.getMapa().isVisible()){
+			if(tipo==1){
+				/////////  Pressed buttons ///////////
+				switch(msg){
+					case "up down":
+						//out.println("sube");
+						g.getNave().setPulsado(true);
+						if(!g.getNave().isMuerto()){
+							g.getNave().setImpulso(true);
+							g.getNave().avanzar();
+						}
+						break;
 
-				case "left down":
-					//out.println("izq");
-					if(!g.getNave().isMuerto()) g.getNave().bajaRotation();
-					break;
+					case "left down":
+						//out.println("izq");
+						if(!g.getNave().isMuerto()) g.getNave().bajaRotation();
+						break;
 
-				case "right down":
-					//out.println("derecha");
-					if(!g.getNave().isMuerto()) g.getNave().subeRotation();
-					break;
+					case "right down":
+						//out.println("derecha");
+						if(!g.getNave().isMuerto()) g.getNave().subeRotation();
+						break;
 
-				case "shoot down":
-					//out.println("disparo");
-					if(!g.getNave().isMuerto()){
-						if(!g.getNave().getDisparo()) g.getNave().setDisparo(true);
-						if(g.getNave().getDisparo()) g.getNave().disparar();
-						g.getMapa().suma1disparo();
-					}
-					break;
+					case "shoot down":
+						//out.println("disparo");
+						if(!g.getNave().isMuerto()){
+							if(!g.getNave().getDisparo()) g.getNave().setDisparo(true);
+							if(g.getNave().getDisparo()) g.getNave().disparar();
+							g.getMapa().suma1disparo();
+						}
+						break;
 
-				default: break;
+					default: break;
+				}
 			}
-		}
-		else if(tipo==2){
-			/////////  released buttons ///////////
-			switch(msg){
-				case "up released":
-					g.getNave().setImpulso(false);
-					break;
+			else if(tipo==2){
+				/////////  released buttons ///////////
+				switch(msg){
+					case "up released":
+						g.getNave().setImpulso(false);
+						break;
+						
+					case "shoot released":
+						g.getNave().setDisparo(false);
+						break;
+						
+					case "left released":
+						g.getNave().setIzquierda(false);
+						break;
 					
-				case "shoot released":
-					g.getNave().setDisparo(false);
-					break;
+					case "right released":
+						g.getNave().setDerecha(false);
+						break;
 					
-				case "left released":
-					g.getNave().setIzquierda(false);
-					break;
-				
-				case "right released":
-					g.getNave().setDerecha(false);
-					break;
-				
-				default: 
-					System.out.println("Ignoring input line");
-					out.println("Unknown line, ignoring line");
-					break;
+					default: 
+						System.out.println("Ignoring input line");
+						out.println("Unknown line, ignoring line");
+						break;
+				}
 			}
+
 		}
-
-
 	}
 
 }

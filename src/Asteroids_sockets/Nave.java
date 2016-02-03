@@ -92,7 +92,7 @@ public class Nave extends Thread  {
 	public void run() {
 
 		while(!muerto){
-			//mapa.chocaObjeto(this);
+			mapa.chocaObjeto(this);
 			if(getPulsado()) avanzar();	//activa inercia
 
 			try {sleep(60);}
