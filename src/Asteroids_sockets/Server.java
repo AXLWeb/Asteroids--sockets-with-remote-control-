@@ -48,6 +48,7 @@ public class Server extends Thread {
 
 				//TODO new Cliente Thread ..... then:
 				//processClient(in, out); // interact with a client
+				
 
 				// Close client connection
 				clientSock.close();
