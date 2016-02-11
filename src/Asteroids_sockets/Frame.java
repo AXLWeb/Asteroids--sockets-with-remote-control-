@@ -12,9 +12,6 @@ public class Frame extends JFrame implements KeyListener{
 
 	/////////////// setters & getters //////////////////////////////
 	public void setMapa(Mapa mapa) {this.getContentPane().add(mapa);}
-	public void setPantInicial(PantInicial pantInicial) { this.getContentPane().add(pantInicial);}
-	public void setStats(pantScores pantScores) { this.getContentPane().add(pantScores);}
-
 
 	// Constructor inicial del frame.
 	public Frame(Generador gen) {
@@ -32,50 +29,54 @@ public class Frame extends JFrame implements KeyListener{
 	
 	@Override
 	public void keyPressed(KeyEvent key) {
+		/*
 		int k = key.getKeyCode();
 		switch(k){
 			case KeyEvent.VK_RIGHT:
-				if(!g.getNave().isMuerto()) g.getNave().subeRotation();
+				if(!g.getMapa().getNaveByID(ID).isMuerto()) g.getMapa().getNaveByID(ID).subeRotation();
 				break;
 			case KeyEvent.VK_LEFT:
-				if(!g.getNave().isMuerto()) g.getNave().bajaRotation();
+				if(!g.getMapa().getNaveByID(ID).isMuerto()) g.getMapa().getNaveByID(ID).bajaRotation();
 				break;
 			case KeyEvent.VK_UP:
-				g.getNave().setPulsado(true);
-				if(!g.getNave().isMuerto()){
-					g.getNave().setImpulso(true);
-					g.getNave().avanzar();
+				g.getMapa().getNaveByID(ID).setPulsado(true);
+				if(!g.getMapa().getNaveByID(ID).isMuerto()){
+					g.getMapa().getNaveByID(ID).setImpulso(true);
+					g.getMapa().getNaveByID(ID).avanzar();
 				}
 				break;
 			case KeyEvent.VK_SPACE:
-				if(!g.getNave().isMuerto()){
-					if(!g.getNave().getDisparo()) g.getNave().setDisparo(true);
-					if(g.getNave().getDisparo()) g.getNave().disparar();
-					g.getMapa().suma1disparo();
+				if(!g.getMapa().getNaveByID(ID).isMuerto()){
+					if(!g.getMapa().getNaveByID(ID).getDisparo()) g.getMapa().getNaveByID(ID).setDisparo(true);
+					if(g.getMapa().getNaveByID(ID).getDisparo()) g.getMapa().getNaveByID(ID).disparar();
+					g.getMapa().suma1disparo();		//TODO: la Nave-ID suma 1 disparo
 				}
 				break;
 			default: break;
 		}
+		*/
 	}
 		
 	@Override
 	public void keyReleased(KeyEvent key) {
+		/*
 		int k = key.getKeyCode();
 		switch(k){
 			case KeyEvent.VK_RIGHT:
-				g.getNave().setDerecha(false);
+				g.getMapa().getNaveByID(ID).setDerecha(false);
 				break;
 			case KeyEvent.VK_LEFT:
-				g.getNave().setIzquierda(false);
+				g.getMapa().getNaveByID(ID).setIzquierda(false);
 				break;
 			case KeyEvent.VK_UP:
-				g.getNave().setImpulso(false);
+				g.getMapa().getNaveByID(ID).setImpulso(false);
 				break;
 			case KeyEvent.VK_SPACE:
-				g.getNave().setDisparo(false);
+				g.getMapa().getNaveByID(ID).setDisparo(false);
 				break;
 			default: break;
 		}
+		*/
 	}
 
 	@Override

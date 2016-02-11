@@ -1,23 +1,19 @@
 package Asteroids_sockets;
 
+import java.util.Stack;
+
 public class Generador extends Thread {
 
 	private Frame frame;
 	private Mapa mapa;
 	private Nave nave;
-	private PantInicial pantInicial;
-	private pantScores pantScores;
-	private pantNombre pantNombre;
 	private Sonidos sonidos;
-	private Server server;
 
 	////////////////////////	setters & getters	//////////////////////////////
-	public Server getServer(){return this.server;}
 	public Mapa getMapa() {return this.mapa;}
 	public Frame getFrame() {return this.frame;}
-	public Nave getNave() {return this.nave;}
+	//public Nave getNave() {return this.nave;}
 	public Sonidos getSonidos() {return this.sonidos;}
-	public pantNombre getPantNombre() {return this.pantNombre;}
 
 	//Constructor
 	public Generador() {
@@ -28,22 +24,9 @@ public class Generador extends Thread {
 		this.frame = new Frame(this);
 		this.mapa = new Mapa(this, frame);
 		mapa.setVisible(false);
-
-		this.pantInicial = new PantInicial(this, frame, mapa);
-		pantInicial.setVisible(true);
-
-		this.server = new Server(this);
-		server.start();
 	}
 
 	public void run(){
-
-		if(pantInicial.isVisible()){
-			generaMapaPrevio();
-			generaAsteroide();
-			server.conect();
-		}
-		
 		if (mapa.isVisible()){
 			while(mapa.isJugando()){
 				if(mapa.getListaAsteroides().size() < mapa.getMax_Asteroides() ){
@@ -56,9 +39,13 @@ public class Generador extends Thread {
 		catch (InterruptedException ex) {ex.printStackTrace();}
 	}
 
-	protected void guardaDatosCSV() {
+	protected void guardaDatosCSV(int id) {
+		Nave nave = mapa.getNaveByID(id);
+		//TODO buscar Nave x ID y guardar sus datos
+
 		String puntos = String.valueOf(nave.getPuntos().getTotal());
-		String nombre = nave.getNombreJugador();
+		//String nombre = nave.getNombreJugador();
+		String nombre = "ABC";
 		nombre = nombre.toUpperCase();
 
 		if((nombre != null && nombre != "") && (puntos != null && puntos != ""))
@@ -66,43 +53,25 @@ public class Generador extends Thread {
 		else
 			System.out.println("No se ha podido guarda los datos en el fichero CSV...");
 	}
-	
-	protected void verStats() {
-		this.pantScores = new pantScores(this, frame);
-		new Thread(pantScores).start();
-	}
 
-	protected void cogeNombreJugador() {
-		this.pantNombre = new pantNombre(this, frame); 
-		new Thread(pantNombre).start();
-	}
 
 	protected void iniciarJuego() {
 		this.mapa = new Mapa(this, frame);
 		mapa.setVisible(false);
 
-		generaMapa();
-		generaNave();
+		//TODO: hacer copia de las naves/jugadores existentes
+		Stack<Nave> copiaListaNaves = new Stack<>();
+
+		generaMapa(); //El del juego de VERDAD. Al crear este Mapa se pierde el OTRO (donde se habian guardado las Naves del Server)
+
+		//generaNave(ID);		//TODO: la nave se genera CON el mismo ID del MANDO
+		//System.out.println("Generador: Nave creada con ID: "+nave.getID());
+		System.out.println("copiaListaNaves.size()="+copiaListaNaves.size());
+		System.out.println("Generador: mapa.getListaNaves().size() = "+mapa.getListaNaves().size());
+		
 		mapa.start();
 	}
-	
-	protected void iniciarMapaPrevio(){
-		this.mapa = new Mapa(this, frame);
-		mapa.setVisible(true);
-		this.pantInicial = new PantInicial(this, frame, mapa);
-		pantInicial.setVisible(true);
-		this.frame.pack();
-		generaMapaPrevio();
-		generaAsteroide();
-	}
-	
-	protected void generaMapaPrevio(){
-		this.frame.setPantInicial(this.pantInicial);
-		this.frame.setBounds(100, 100, this.pantInicial.getWidth(), this.pantInicial.getHeight());
-		this.frame.setTitle("Asteroids");
-		pantInicial.setVisible(true);
-		new Thread(pantInicial).start();
-	}
+
 
 	protected void generaMapa(){
 		this.frame.setMapa(this.mapa);
@@ -111,9 +80,11 @@ public class Generador extends Thread {
 		sonidos.loop(sonidos.getSonidoJuego());
 	}
 
-	protected void generaNave(){
-		this.nave = new Nave(mapa, this);
-		mapa.setNave(nave);
+	protected void generaNave(int ID){
+		Nave nave = new Nave(mapa, this);
+		//mapa.setNave(nave);
+		nave.setID(ID);
+		mapa.getListaNaves().addElement(nave);
 		nave.start();
 	}
 

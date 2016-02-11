@@ -22,7 +22,7 @@ public class Nave extends Thread  {
 	private int rotation, width, height, vida, vidas;
 	private boolean pulsado, disparo, muerto, derecha, izquierda, arriba;
 	private MyVector Vdir, Vf, Vact, Vimpulso;
-	private String nombreJugador;
+	private int IDmando;
 
 	///////////////	setters & getters	//////////////////////////////
 	public Image getImage(){return this.NaveVidas;}
@@ -31,10 +31,13 @@ public class Nave extends Thread  {
 	public void setRotation(int rotation) {this.rotation = rotation;}
 	public int getRotation() {return this.rotation;}
 	public Nave getNave(){return this;}
+	protected void setID(int ID) {this.IDmando = ID;}
+	protected int getID(){return this.IDmando;}
 	public Mapa getMapa(){return this.mapa;}
 	public Misil getMisil(){return this.misil;}
 	protected Puntos getPuntos(){return this.puntos;}
 	protected void setPuntos(){this.puntos = new Puntos();}
+	protected int getTotalPuntos(){return this.puntos.getTotal();}
 	protected void setImpulso(boolean b){this.arriba = b;}
 	protected void setDisparo(boolean b){this.disparo = b;}
 	public boolean getIzquierda(){return this.izquierda;}
@@ -58,8 +61,8 @@ public class Nave extends Thread  {
 	protected int getVidas(){return this.vidas;}
 	public void setVidas(int i) {this.vidas = i;}
 	protected synchronized void restaVidaNave() {if(this.vida>1) this.vida-=10;}
-	protected String getNombreJugador() { return this.nombreJugador;}
-	protected void setNombreJugador(String name) { this.nombreJugador = name;}
+	//protected String getNombreJugador() { return this.nombreJugador;}
+	//protected void setNombreJugador(String name) { this.nombreJugador = name;}
 
 
 	/////////////// Constructor de Nave	///////////////
@@ -68,7 +71,7 @@ public class Nave extends Thread  {
 		this.mapa = mapa;
 		this.generator = g;
 		this.sonidos = this.mapa.getGenerator().getSonidos();
-		this.nombreJugador = "";
+		//this.nombreJugador = "";
 		this.width = 100;
 		this.height = 40;
 		this.x = mapa.getWidth()/2;
@@ -92,7 +95,11 @@ public class Nave extends Thread  {
 	public void run() {
 
 		while(!muerto){
-			mapa.chocaObjeto(this);
+			//TODO: quitar comentario
+			//mapa.chocaObjeto(this);
+			
+			//System.out.println("posicion nave: "+getPosicion());
+			
 			if(getPulsado()) avanzar();	//activa inercia
 
 			try {sleep(60);}

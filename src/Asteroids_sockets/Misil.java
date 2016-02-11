@@ -58,7 +58,7 @@ public class Misil extends Thread {
 		this.y = e.getPosY() + e.getHeight()/2;
 		this.muerto = false;
 
-		double angulo = Math.atan2(mapa.getNave().getPosY()-y, mapa.getNave().getPosX()-x);		//Calcula angulo (en radianes) segun la posicion Nave
+		double angulo = Math.atan2(mapa.getRandomNave().getPosY()-y, mapa.getRandomNave().getPosX()-x);		//Calcula angulo (en radianes) segun la posicion Nave
 		this.Vdir = new MyVector(Math.cos(angulo), Math.sin(angulo));		//Crea Vector director en base al angulo
 		this.Vimpulso = this.Vdir.MultiplicaVectores(Misil.aceleracion);	//Calcula Vector Impulso
 		this.Vf = this.Vimpulso;

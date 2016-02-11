@@ -24,29 +24,40 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 	private static ImageIcon icoFondo = new ImageIcon(imgFondo);
 	private static Image fondo = icoFondo.getImage();
 	private static Sonidos sonidos;
-	private Nave nave;
-	private pantNombre pantNombre;
 	private Frame frame;
 	private Generador generator;
+	private ClienteMapa2Server client2server;
 	private int contDisparo, contAsteroidesMuertos, max_Asteroides, nivel;
-	private boolean juego, listo;
+	private boolean juego, listo, logged;
 	private String nombreJugador;
+	private volatile Stack<Jugador> listaJugadores = new Stack<>();			//jugadores (mandos) activos en la partida
+	private volatile Stack<Nave> listaNaves = new Stack<>();				//Las Naves q se pintan en el Mapa
+	private volatile Stack<Mapa> listaMapas = new Stack<>();
 	private volatile Stack<Misil> listaMisiles = new Stack<>();
 	private volatile Stack<Misil> listaMisilesEnemigos = new Stack<>();
 	private volatile Stack<Asteroide> listaAsteroides = new Stack<>();
 	private volatile Stack<Enemigo> listaEnemigos = new Stack<>();
 	private Rectangle btnListo;
+	
+	//variables del protoclo de comunicacion
+    private String ACT;
+    private int vidas, puntos, IDMapa, IDMando;
 
 	///////////////	setters & getters	//////////////////////////////
-	public void setNave(Nave n) {this.nave = n;}
+    protected int getMapaID() {return this.IDMapa;}
+    protected void setMapaID(int id) {this.IDMapa = id;}
+
 	public Thread getThread() {return this.t;}
-	public Nave getNave() {return this.nave;}
 	public Mapa getMapa() {return this;}
 	public int getMax_Asteroides(){return this.max_Asteroides;}
-	public int getContadorDisparos(){return this.contDisparo;}
-	public void suma1disparo(){this.contDisparo+=1;}
+	//public int getContadorDisparos(){return this.contDisparo;}
+	//public void suma1disparo(){this.contDisparo+=1;}
 	public boolean isJugando() {return this.juego;}
+	protected boolean isConnected(){return this.logged;}
 	public Generador getGenerator() {return this.generator;}
+	public Stack<Jugador> getListaJugadores() {return this.listaJugadores;}
+	public Stack<Nave> getListaNaves() {return this.listaNaves;}
+	public Stack<Mapa> getListaMapas() {return this.listaMapas;}
 	public Stack<Misil> getListaMisiles() {return this.listaMisiles;}
 	public Stack<Misil> getListaMisilesEnemigo() {return this.listaMisilesEnemigos;}
 	public Stack<Asteroide> getListaAsteroides() {return listaAsteroides;}
@@ -71,7 +82,11 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 		this.max_Asteroides = 10;
 		this.contAsteroidesMuertos=0;
 		Mapa.sonidos = generator.getSonidos();
-		this.pantNombre = this.generator.getPantNombre();
+		
+		
+		this.logged=false;
+		this.client2server = new ClienteMapa2Server(this);    //hilo de comunicacion con server
+		client2server.start();
 	}
 
 
@@ -86,7 +101,6 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 		else t.start();
 	}
 
-	@SuppressWarnings("static-access")
 	@Override
 	public void run() {
 		this.createBufferStrategy(2);
@@ -100,10 +114,22 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 				contAsteroidesMuertos = 0;
 				generator.generaEnemigo();
 			}
-			
-			if(nave.getVidas()<1) {
-				nave.setMuerto(true);
-				this.juego = false; //termina juego
+
+			//Comprueba si TODAS las Naves del Mapa están muertas para terminar el Juego
+			if(getListaNaves().size()<0) this.juego = false;	//termina el juego
+			else{
+				
+				int cont=0;
+				for(int i=0; i<getListaNaves().size();i++){
+					if(getListaNaves().get(i).getVidas()<1){
+						getListaNaves().get(i).setMuerto(true);
+					}
+					else{
+						cont++;
+						System.out.println("nave aun vivas: "+cont);
+						if(cont<1) this.juego = false;	//termina el juego
+					}
+				}
 			}
 
 			try {t.sleep(16);} //60fps
@@ -111,7 +137,7 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 		}
 
 		if(!listo){
-			nave.setMuerto(true);
+			navesKiller(getListaNaves());
 			misilesKiller(getListaMisiles());
 			enemigosKiller(getListaEnemigos());
 			misilesKiller(getListaMisilesEnemigo());
@@ -124,23 +150,18 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 		if(listo){
 			sonidos.stop(sonidos.getSonidoJuego());
 			this.setVisible(false);
-			if(nave.getNombreJugador().equals("")) {
-				this.generator.cogeNombreJugador();
-
-				while(this.generator.getPantNombre().isRunning()){
-					this.generator.getPantNombre().repaint();
-				}
-			}
-
-			generator.guardaDatosCSV();
-			this.setVisible(false);
-			generator.verStats();
 			killAll();
+
+			Nave nave = null;
+			for(int i=0; i<getListaNaves().size();i++){
+				nave = getNaveByID(i);
+				generator.guardaDatosCSV(nave.getID());
+			}
 		}
 	}
 
 	/**
-	 * Comprueba si el Enemigo choca con algun otro Objeto del Mapa. En caso afirmativo destruye ambos
+	 * Comprueba si el Enemigo choca con algun otro Objeto del Mapa
 	 */
 	protected void chocaObjeto(Enemigo enemigo) {
 
@@ -168,13 +189,19 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 			}
 		}
 
-		//Colisiones Enemigo VS Nave
-		if(chocan2Objetos(enemigo.getPosicion(), nave.getPosicion())){
-			enemigo.setMuerto(true);
-			nave.quitaVidas();	//quita 1 vida
-			nave.restaVidaNave();
-			sonidos.play(sonidos.getExploBig());
+		if(!getListaNaves().empty()){
+			//Colisiones Enemigo VS Naves
+			for(int i=0; i<getListaNaves().size(); i++){
+				if(chocan2Objetos(getListaNaves().get(i).getPosicion(), enemigo.getPosicion()) && !getListaNaves().get(i).isMuerto()){
+					enemigo.setMuerto(true);
+					getListaNaves().get(i).quitaVidas();	//quita 1 vida
+					getListaNaves().get(i).restaVidaNave();
+					sonidos.play(sonidos.getExploBig());
+				}
+			}
 		}
+
+		
 	}
 
 	/**
@@ -238,9 +265,8 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 			if(chocan2Objetos(misil_actual.getPosicion(), enemigo.getPosicion())){
 				if(enemigo != misil_actual.getEnemigo()){
 					//si NO es ÉL MISMO
-					getListaEnemigos().get(i).setMuerto(true);
-					if(misil_actual.getNave() != null) {
-
+					enemigo.setMuerto(true);	//getListaEnemigos().get(i).setMuerto(true);
+					if(misil_actual.getNave() != null) {							//si es un Misil de Nave
 						if(enemigo.getScale() == 2) {
 							misil_actual.getNave().getPuntos().killEnemy();
 							sonidos.play(sonidos.getExploBig());
@@ -263,17 +289,21 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 	}
 
 	/**
-	 * Comprueba si un Misil enemigo choca con la Nave
+	 * Comprueba si un Misil (enemigo) choca con alguna de las Naves del Mapa
 	 */
 	private boolean misilChocaNave(Misil misil){
 		boolean misil_muere=false;
 		//si es un Misil de Enemigo y NO es de Nave
 		if(misil.getEnemigo() != null && misil.getNave()==null){
-			if(chocan2Objetos(misil.getPosicion(), nave.getPosicion())){
-				misil_muere = true;
-				nave.restaVidaNave();
-				nave.quitaVidas();	//quita 1 vida
-				sonidos.play(sonidos.getExploSmall());
+			for(int i=0; i<getListaNaves().size();i++){
+				Nave nave = getListaNaves().get(i);			//busca con qué Nave ha chocado el Misil
+				if(chocan2Objetos(misil.getPosicion(), nave.getPosicion())){
+					misil_muere = true;
+					nave.restaVidaNave();
+					nave.quitaVidas();	//quita 1 vida a esa Nave
+					sonidos.play(sonidos.getExploSmall());
+					System.out.println("La Nave "+nave.getID()+" pierde 1 vida");
+				}
 			}
 		}
 		return misil_muere;
@@ -415,25 +445,40 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 		g2d.drawImage(fondo, 0, 0, null); 		//pintar img fondo
 		g2d.setColor(Color.white);
 		g2d.setFont(Launcher.arcade);
+		
+/*
+		String ID="";	//ID de la nave (y jugador) q se pinta en el Mapa
 
+		for(int i=0; i < getListaJugadores().size(); i++){
+			Jugador j = getListaJugadores().get(i);
+			//coge ID de jugador para mover la nave(ID)
+		}
+*/
+				
 		if(this.isJugando()) {
-			g2d.drawString(nave.getPuntos().getTotal()+"", 10, 21);					//puntos
-			g2d.drawString(nave.getNombreJugador()+"", this.getWidth()-50, 20);		//player name
+/*
+			Nave nave = null;
+			//Nave nave = getNaveByID(ID);
+			for(int i=0; i < getListaNaves().size(); i++){
+				nave = getListaNaves().get(i);
+				g2d.drawString(nave.getPuntos().getTotal()+"", 10*i+10, 21);			//puntos
+				g2d.drawString(nave.getNombreJugador()+"", this.getWidth()-50 +50*i, 20);		//player name
+			}
+
 
 			int vidas = nave.getVidas();
 			for(int i=1; i<=vidas; i++) {g2d.drawImage(nave.getImage(), -10+i*22, 30, null);} 	//cargar img de vidas
-/*
+
 			g2d.drawString(nave.getVidas()+" vidas", this.getWidth()-130, 20);		//Numero de vidas
 			g2d.setColor(Color.gray);
 			g2d.drawRect(this.getWidth()-110, 25, 100, 11);							//borde de la barra vida
 			g2d.setColor(Color.white);
 			g2d.fillRect(this.getWidth()-110, 26, nave.getVida(), 10);				//barra vida
-*/
 			g2d.drawString(nave.getNombreJugador()+"", this.getWidth()-50, 20);
-
+*/
 			pintaMisiles(g2d);
 		    pintaAsteroides(g2d);
-		    pintaNave(g2d);
+		    pintaNaves(g2d);
 		    pintaEnemigos(g2d);
 		    pintaMisilesEnemy(g2d);
 		}
@@ -442,11 +487,9 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 			requestFocus();
 			pintaAsteroides(g2d);
 
+			/*
 			g2d.setColor(Color.white);
 			g2d.setFont(Launcher.arcade);
-			g2d.drawString("PUNTOS ", this.getWidth()/2-100, this.getHeight()/2-70);
-			g2d.setFont(Launcher.titulo);
-			g2d.drawString(nave.getPuntos().getTotal()+"", this.getWidth()/2, this.getHeight()/2-70);
 
 			//boton LISTO
 			g2d.setColor(Color.white);
@@ -454,6 +497,7 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 			g2d.drawString("LISTO", this.getWidth()/2-10, this.getHeight()/2);
 			//area de interacción(Rectangle) del boton LISTO
 			btnListo = new Rectangle(this.getWidth()/2-80, this.getHeight()/2-20, 200, 30);
+			*/
 		}
 
 		//muestra TODOS los gráficos en el Canvas
@@ -462,10 +506,39 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 	}
 
 	/**
-	 * Pinta la Nave si está viva 
+	 * Devuelve una Nave buscada por su ID 
+	 * @param ID
+	 * @return Nave
 	 */
-	private void pintaNave(Graphics2D g2d) {
-		if(!nave.isMuerto()) nave.pintaNave(g2d);
+	public Nave getNaveByID(int ID) {
+		Nave nave = null;
+		for(int i=0; i<getListaNaves().size();i++){
+			if(getListaNaves().get(i).getID() == ID)
+				nave = getListaNaves().get(i);
+			System.out.println("nave ID= "+nave.getID());
+		}
+		return nave;
+	}
+	
+	/**
+	 * Devuelve una Nave al azar de la lista de Naves para que el Enemigo le dispare
+	 * @return Nave
+	 */
+	public Nave getRandomNave() {return getListaNaves().get(new Random().nextInt(getListaNaves().size()));}
+	
+	/**
+	 * Pinta las Naves vivas del Mapa y elimina las muertas 
+	 */
+	private void pintaNaves(Graphics2D g2d) {
+		if(!getListaNaves().empty()){
+			for(int i=0; i < getListaNaves().size(); i++){
+				if(!getListaNaves().get(i).isMuerto()) 
+					getListaNaves().get(i).pintaNave(g2d);
+				else 
+					getListaNaves().remove(i);
+			}
+		}
+		
 	}
 
 	/**
@@ -548,12 +621,15 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 		getListaAsteroides().removeAllElements();
 		getListaMisilesEnemigo().removeAllElements();
 		getListaMisiles().removeAllElements();
+		getListaNaves().removeAllElements();
 
 		//reset variables
+		/*
 		nave.setVida(100);
 		nave.setVidas(3);
 		nave.setPuntos();
 		nave.setMuerto(false);
+		*/
 		
 		//mata hilo MAPA
 		Mapa.t=null;
@@ -576,6 +652,12 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 			lista.get(i).setMuerto(true);
 		}
 	}
+	
+	private void navesKiller(Stack<Nave> lista){
+		for(int i=0; i<lista.size();i++){
+			lista.get(i).setMuerto(true);
+		}
+	}
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
@@ -592,5 +674,90 @@ public class Mapa extends Canvas implements Runnable, MouseListener{
 	public void mousePressed(MouseEvent e) {}
 	@Override
 	public void mouseReleased(MouseEvent e) {}
+	
+	public void avisoUser(String s) {
+		System.out.println("AVISO: "+s);
+	}
+	
+	public void trataRespuesta(String respuesta) {
+	    //OUT:IDMando;IDMapa;BtnACT_reply;vidas;puntos
+        //IN: BtnACT;IDMando;IDmapa
+		System.out.println("Tratando la respuesta del server: "+ respuesta);
+		String[] separador;
+		//String BtnACT_reply="";
+		//String ACT = "bye | mapa_init";
+		
+		
+		//Lee IN q recibe de ClienteMapa2Server
+		separador = respuesta.trim().toLowerCase().split(";");
+		
+		if(separador.length == 3){
+			//MANDO
+			/*
+			ACT = separador[0]; //ACT sobre la Nave(ID) indicada
+			IDMando = Integer.valueOf(separador[1]); //identifica la Nave(ID) indicada
+			IDMapa = Integer.valueOf(separador[2]); //reconoce que es él mismo
+			*/
+			
+			if(respuesta.equals("null;null;null")){
+				//si es 1º msg ===> "null;null;null"
+				//TODO: pide IDmando + IDmapa
+				
+				client2server.sendMsg(null+";"+null+";"+null+";"+null+";"+null);
 
+			}
+			else if(separador[0].equals(null) && !separador[1].equals(null) && separador[2].equals(null)){ 
+				//"null;"IDmando+";"+IDMapa
+				this.IDMando = Integer.valueOf(separador[1]);
+				this.IDMapa = Integer.valueOf(separador[2]);
+				setMapaID(IDMapa);
+				//Crea nueva Nave para pintar en Mapa
+				Nave n = new Nave(this, getGenerator());
+				n.start();
+				getListaNaves().addElement(n);
+				//Crea nuevo jugador
+				Jugador j = new Jugador();
+				j.setIDMando(IDMando);
+				j.setIDMapa(IDMapa);
+				getListaJugadores().addElement(j);
+				j.setVidas(n.getVidas());
+				j.setPuntos(n.getTotalPuntos());
+				
+////////////////////////
+				System.out.println("Nave creada con ID "+n.getID());
+				System.out.println("Jugador creado con ID "+j.getIDMando());
+////////////////////////
+				
+				
+				//envia respuesta con datos
+				ACT=null;
+				client2server.sendMsg(j.getIDMando()+";"+getMapaID()+";"+ACT+";"+getNaveByID(j.getIDMando())+";"+j.getPuntos());
+				
+			}
+			else{
+				//client2server.sendMsg(IDMando+";"+this.IDMapa+";"+ACT+";"+getNaveByID(ID).getVidas()+";"+getNaveByID(ID).getPuntos());
+				switch(ACT){
+				}
+			}
+		
+		}
+		
+		if(separador.length == 5){
+			/*
+			IDMando = Integer.valueOf(separador[0]);		//identifica la Nave(ID) indicada
+			IDMapa = Integer.valueOf(separador[1]) ;		//reconoce que es él mismo
+			ACT = separador[2];			//ACT a realizar sobre la Nave(ID) 
+			vidas = Integer.valueOf(separador[3]);
+			puntos = Integer.valueOf(separador[4]);
+			*/
+		}
+		else
+			System.out.println("No se reconoce el msg recibido, ignorando...");
+		
+		
+		//Envia respuesta OUT a ClienteMapa2Server
+		String s=null;
+		client2server.sendMsg(s);
+	}
+	
 }
