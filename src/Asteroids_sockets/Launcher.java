@@ -19,7 +19,7 @@ public class Launcher {
 	}
 
 
-	public static void cargaFuentes(){	
+	public static void cargaFuentes(){
 
 		try {
 			is = Launcher.class.getResourceAsStream("/fonts/Adore64.ttf");
@@ -37,9 +37,3 @@ public class Launcher {
 		} 
 	}
 }
-
-
-
-
-
-

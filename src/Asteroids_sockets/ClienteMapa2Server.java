@@ -35,61 +35,53 @@ public class ClienteMapa2Server extends Thread{
     protected Socket getSocket() {return this.sock;}    
     protected int getMapaID() {return this.mapa.getMapaID();}
     protected void setMapaID(int id) {this.mapa.setMapaID(id);}
-
+    protected boolean isLogged2Server(){return this.logged;}
 
 
 	public ClienteMapa2Server(Mapa mapa) {
 		logged = false;
 		this.mapa = mapa;
 	}
-	
 
 
    public void run(){
         sendBroadCast();
         System.out.println( "ServerIP = " + ServerIP + ":" + ServerPORT);
-        makeContact(ServerIP, ServerPORT);
+        makeContact(ServerIP, ServerPORT);		//envia 1º linea de identificacion como MAPA y trata la respuesta
         boolean done=false;
-
-        while(getSocket().isConnected() && !getSocket().isClosed()){
-            if(!getSocket().isConnected())
-                mapa.avisoUser("Problema de conexión con el Server");
-            else{
-                String line = null;
-                try {
-                    line = in.readLine();
-                }
-                catch (IOException e) {
-                    if(line == null) mapa.avisoUser("No se ha recibido respuesta del Server");
-                    e.printStackTrace();
-                    System.out.println("Error == "+e.getMessage());
-                }
-                //mantiene hilo abierto entre Server(ClienteMapa) y Mapa
-                respuesta = recibeMSg();       //mantiene escucha de la respuesta del server
-                System.out.println("respuesta del server: "+ respuesta);
-                mapa.trataRespuesta(respuesta);
-            }
+        String respuesta = null;
+		while(!done){
+			System.out.println("ClienteMapa2Server lee otro mensaje del server (ClienteMapa)");
+			if((respuesta = recibeMSg()) == null) done = true;
+			else mapa.trataRespuesta(respuesta);
         }
+		closeLink();
     }
 
+   /**
+    * El msg que reenvia al server (ClienteMapa)
+    * @param s
+    */
     protected void sendMsg(String s){
     	try{s.trim().toLowerCase();}
         catch (Exception e){e.printStackTrace();}
 
-        System.out.println("Mapa envia msg a server: "+s);
-        if (s.equals("bye") || s.equals("close") || s.equals("exit")) closeLink();
-        else {
-            out.println(s);
+        System.out.println("Mapa envia msg a ClienteMapa: "+s);
+        if(getSocket().isConnected() && !getSocket().isClosed()){
+        	if(!s.equals(null))	out.println(s);
         }
     }
     
+    /**
+     * El msg que recibe del server (ClienteMapa)
+     * @return
+     */
     protected String recibeMSg(){
         String line = null;
-        try {
-        	line = in.readLine().trim().toLowerCase();
-        	System.out.println("msg del server: "+ line);
-        }
-        catch (IOException e) {e.printStackTrace();}
+        try{
+        	if ((line=in.readLine())!=null) return line.trim().toLowerCase();
+            else line=null;
+        }catch(Exception e){e.printStackTrace();}
         return line;
     }
 
@@ -99,13 +91,14 @@ public class ClienteMapa2Server extends Thread{
             in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
             out = new PrintWriter(sock.getOutputStream(), true);
 
-            out.println("mando");
+            out.println("null;null;null;null;null");        //1º linea q envia para identificarse con el server como MAPA
             String str = in.readLine();
-            System.out.println(str);
-            System.out.println( "makeContact lee linea: "+str);
+            System.out.println("makeContact de Mapa2Server Lee resp del server a la primera linea: "+str);
+            mapa.PrimeraRespuesta(str);
 
         } catch (Exception e) {
         	System.out.println("Errrrrr.... "+ e.getMessage());
+        	e.printStackTrace();
         }
     }
 
@@ -123,6 +116,7 @@ public class ClienteMapa2Server extends Thread{
             try {
                 DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, InetAddress.getByName("255.255.255.255"), 8888);
                 c.send(sendPacket);
+                System.out.println("sendBroadCast de MAPA");
                 System.out.println( ">>> Request packet sent to: 255.255.255.255 (DEFAULT)");
             } catch (Exception e) {
             	System.out.println(">>>> "+e.getMessage());
@@ -162,7 +156,7 @@ public class ClienteMapa2Server extends Thread{
             c.receive(receivePacket);
 
             //We have a response
-            System.out.println( ">>> Broadcast response from server: " + receivePacket.getAddress().getHostAddress());
+            System.out.println( ">>> Broadcast response from server IP: " + receivePacket.getAddress().getHostAddress());
 
             //Check if the message is correct
             String message = new String(receivePacket.getData()).trim();
@@ -181,15 +175,12 @@ public class ClienteMapa2Server extends Thread{
 
     protected  void closeLink() {
         try {
-            out.println("bye"); // tell server
+            out.println("all_mandos;"+mapa.getMapaID()+";bye;null;null");
             sock.close();
             in.close();
             out.close();
             c.close();
-        } catch (Exception e) {System.out.println("Erro0or...."+ e.getMessage());}
+        } catch (Exception e) {System.out.println("Erro0or...."+ e.getMessage()); e.printStackTrace();}
     }
-
-
-
 
 }

@@ -6,7 +6,7 @@ public class Jugador {
 
 	
 	///////////// getters & setters //////////////////
-	public int getIDMando(){return this.IDMando;};
+	public int getIDMando(){return this.IDMando;}
 	public void setIDMando(int id) {this.IDMando = id;}
 	public int getIDMapa() {return IDMapa;}
 	public void setIDMapa(int iDMapa) {IDMapa = iDMapa;}

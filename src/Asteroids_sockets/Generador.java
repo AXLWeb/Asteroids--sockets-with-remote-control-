@@ -12,112 +12,91 @@ public class Generador extends Thread {
 	////////////////////////	setters & getters	//////////////////////////////
 	public Mapa getMapa() {return this.mapa;}
 	public Frame getFrame() {return this.frame;}
-	//public Nave getNave() {return this.nave;}
 	public Sonidos getSonidos() {return this.sonidos;}
 
 	//Constructor
 	public Generador() {
 		try{
 			sonidos = new Sonidos();
-		}catch(Exception e){ e.printStackTrace();}
+		}catch(Exception e){e.printStackTrace();}
 
 		this.frame = new Frame(this);
-		this.mapa = new Mapa(this, frame);
-		mapa.setVisible(false);
+		this.mapa = new Mapa(this, frame);		//Esta MAPA es el unico MAPA de ESTE juego. Cada juego tendrá su propio MAPA
 	}
 
 	public void run(){
 		if (mapa.isVisible()){
+			muestraMapa();
+
 			while(mapa.isJugando()){
 				if(mapa.getListaAsteroides().size() < mapa.getMax_Asteroides() ){
+					System.out.println("Generando nuevo asteroide en MAPA ID "+mapa.getMapaID());
 					generaAsteroide();
 				}
+
+				try {Thread.sleep(10);}
+				catch (InterruptedException ex) {ex.printStackTrace();}
 			}
 		}
-
-		try {Thread.sleep(1000);}
-		catch (InterruptedException ex) {ex.printStackTrace();}
 	}
 
-	protected void guardaDatosCSV(int id) {
-		Nave nave = mapa.getNaveByID(id);
-		//TODO buscar Nave x ID y guardar sus datos
-
-		String puntos = String.valueOf(nave.getPuntos().getTotal());
-		//String nombre = nave.getNombreJugador();
-		String nombre = "ABC";
-		nombre = nombre.toUpperCase();
-
-		if((nombre != null && nombre != "") && (puntos != null && puntos != ""))
-			nave.getPuntos().writeStats(puntos, nombre);		//guarda en CSV
-		else
-			System.out.println("No se ha podido guarda los datos en el fichero CSV...");
-	}
-
-
-	protected void iniciarJuego() {
-		this.mapa = new Mapa(this, frame);
-		mapa.setVisible(false);
-
-		//TODO: hacer copia de las naves/jugadores existentes
-		Stack<Nave> copiaListaNaves = new Stack<>();
-
-		generaMapa(); //El del juego de VERDAD. Al crear este Mapa se pierde el OTRO (donde se habian guardado las Naves del Server)
-
-		//generaNave(ID);		//TODO: la nave se genera CON el mismo ID del MANDO
-		//System.out.println("Generador: Nave creada con ID: "+nave.getID());
-		System.out.println("copiaListaNaves.size()="+copiaListaNaves.size());
-		System.out.println("Generador: mapa.getListaNaves().size() = "+mapa.getListaNaves().size());
-		
-		mapa.start();
-	}
-
-
-	protected void generaMapa(){
+	protected void muestraMapa(){
 		this.frame.setMapa(this.mapa);
 		this.frame.setBounds(100, 100, this.mapa.getWidth(), this.mapa.getHeight());
 		mapa.setVisible(true);
-		sonidos.loop(sonidos.getSonidoJuego());
+		mapa.start();
+		System.out.println("GENERADOR inicia mapa");
+		//sonidos.loop(sonidos.getSonidoJuego());
 	}
 
+	protected void generaNave(Nave nave){
+		mapa.getListaNaves().add(0, nave);
+		nave.start();
+	}
+	
 	protected void generaNave(int ID){
 		Nave nave = new Nave(mapa, this);
-		//mapa.setNave(nave);
 		nave.setID(ID);
-		mapa.getListaNaves().addElement(nave);
+		mapa.getListaNaves().add(nave);
 		nave.start();
+	}
+	
+	protected void generaJugador(int ID){
+		Jugador jugador = new Jugador();
+		jugador.setIDMando(ID);
+		mapa.getListaJugadores().add(jugador);
 	}
 
 	protected synchronized void generaEnemigo(){
 		Enemigo enemigo = new Enemigo(mapa, this);
-		mapa.getMapa().getListaEnemigos().addElement(enemigo);
+		mapa.getMapa().getListaEnemigos().add(enemigo);
 		enemigo.start();
 		sonidos.play(sonidos.getEnemyBig());
 	}
 	
 	public synchronized void generaEnemigoPequeño(Enemigo enemigo) {
 		Enemigo enemySmall = new Enemigo(mapa, this, enemigo);
-		mapa.getMapa().getListaEnemigos().addElement(enemySmall);
+		mapa.getMapa().getListaEnemigos().add(enemySmall);
 		enemySmall.start();
 		sonidos.play(sonidos.getEnemySmall());
 	}
 
 	protected void generaMisil(Enemigo enemigo) {
 		Misil misil = new Misil(enemigo);
-		mapa.getListaMisilesEnemigo().addElement(misil);
+		mapa.getListaMisilesEnemigo().add(misil);
 		misil.start();
 	}
 
 	protected synchronized void generaMisil(Nave nave){
 		Misil misil = new Misil(nave);
-		mapa.getListaMisiles().addElement(misil);
+		mapa.getListaMisiles().add(misil);
 		misil.start();
 	}
 
 	protected void generaAsteroide(){		
 		if(mapa.getListaAsteroides().size() < mapa.getMax_Asteroides()){
 			Asteroide asteroid = new Asteroide(mapa);
-			mapa.getMapa().getListaAsteroides().addElement(asteroid);
+			mapa.getMapa().getListaAsteroides().add(asteroid);
 			asteroid.start();
 		}
 	}
@@ -138,8 +117,8 @@ public class Generador extends Thread {
 		Asteroide asteroid1 = new Asteroide(asteroide, mapa, angulo1);
 		Asteroide asteroid2 = new Asteroide(asteroide, mapa, angulo2);
 
-		mapa.getMapa().getListaAsteroides().addElement(asteroid1);
-		mapa.getMapa().getListaAsteroides().addElement(asteroid2);
+		mapa.getMapa().getListaAsteroides().add(asteroid1);
+		mapa.getMapa().getListaAsteroides().add(asteroid2);
 
 		asteroid1.start();
 		asteroid2.start();

@@ -33,6 +33,10 @@ public class Puntos {
 	public Puntos(){
 		this.AstMini = this.AstMed = this.AstBig = this.Enemy=0;
 	}
+	
+	public Puntos(int cantidadActual){
+		this.total = cantidadActual;
+	}
 
 	protected void killAstMini(){setAstMini(getAstMini()+valorKillAstMini);}
 	protected void killAstMed(){setAstMini(getAstMini()+valorKillAstMed);}

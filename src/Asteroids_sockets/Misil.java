@@ -3,6 +3,7 @@ package Asteroids_sockets;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.util.Random;
 
 public class Misil extends Thread {
 	private Nave nave;
@@ -58,7 +59,8 @@ public class Misil extends Thread {
 		this.y = e.getPosY() + e.getHeight()/2;
 		this.muerto = false;
 
-		double angulo = Math.atan2(mapa.getRandomNave().getPosY()-y, mapa.getRandomNave().getPosX()-x);		//Calcula angulo (en radianes) segun la posicion Nave
+		double angulo = Math.atan2(mapa.getRandomNave().getPosY()-y, mapa.getRandomNave().getPosX()-x);	//Calcula angulo (en radianes) segun la posicion Nave
+		if(angulo < 0) angulo = new Random().nextDouble();	//por si es nulo (cuando no hay naves)
 		this.Vdir = new MyVector(Math.cos(angulo), Math.sin(angulo));		//Crea Vector director en base al angulo
 		this.Vimpulso = this.Vdir.MultiplicaVectores(Misil.aceleracion);	//Calcula Vector Impulso
 		this.Vf = this.Vimpulso;

@@ -5,7 +5,6 @@ import java.awt.Image;
 import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.Random;
-
 import javax.imageio.ImageIO;
 
 public class Nave extends Thread  {
@@ -47,6 +46,8 @@ public class Nave extends Thread  {
 	public boolean getImpulso(){return this.arriba;}
 	public boolean getDisparo(){return this.disparo;}
 	public MyVector getVdir() {return this.Vdir;}
+	public MyVector getVact() {return this.Vact;}
+	public MyVector getVimp() {return this.Vimpulso;}
 	public Rectangle getPosicion() {return new Rectangle((int)getPosX(), (int)getPosY(), getWidth(), getHeight());}
 	public boolean isMuerto(){return this.muerto;}
 	public synchronized void setMuerto(boolean b){this.muerto = b;}
@@ -60,14 +61,12 @@ public class Nave extends Thread  {
 	public void setVida(int i) {this.vida = i;}
 	protected int getVidas(){return this.vidas;}
 	public void setVidas(int i) {this.vidas = i;}
-	protected synchronized void restaVidaNave() {if(this.vida>1) this.vida-=10;}
 	//protected String getNombreJugador() { return this.nombreJugador;}
 	//protected void setNombreJugador(String name) { this.nombreJugador = name;}
 
 
 	/////////////// Constructor de Nave	///////////////
 	public Nave(Mapa mapa, Generador g) {
-		cargaImgs();
 		this.mapa = mapa;
 		this.generator = g;
 		this.sonidos = this.mapa.getGenerator().getSonidos();
@@ -85,21 +84,61 @@ public class Nave extends Thread  {
 		this.puntos = new Puntos();
 		this.rotation = new Random().nextInt(360-1)+2;	//random de ángulo inicial
 
+		
 		//inicializacion Vectores
-		this.Vdir = new MyVector(Math.cos(rotation), Math.sin(rotation));	//vector director
+		this.Vdir = new MyVector(Math.cos(Math.toRadians(getRotation())), Math.sin(Math.toRadians(getRotation())));	//vector director
 		this.Vimpulso = this.Vdir.MultiplicaVectores(aceleracion);
 		this.Vact = this.Vimpulso;
 		this.Vf = this.Vact.SumaVectores(Vimpulso);	//calcula Vector final
+		System.out.println("ANGULO TEORICO: "+rotation+" VECTOR DIRECTOR: "+ Vdir.toString());
+
+	}
+	
+	
+	
+	public Nave(Mapa mapa, Generador g, int idMando, int vidas, int puntos, boolean entraPorDerecha, double posY, int angulo, double vActX, double vActY, double vImpX, double vImpY){
+		/*
+		 * 		String comando = nave.getID()+";"+this.IDMapa+";"+"salemapa;"+nave.getVidas()+";"+nave.getTotalPuntos()+";izq;"+nave.getPosY()+";"+nave.getRotation()+";"+nave.getVact().getX()+";"+nave.getVact().getY()
+				+";"+nave.getVimp().getX()+";"+nave.getVimp().getY()+";";
+		 */
+	
+		//this.nombreJugador = "";
+		this.width = 40;
+		this.height = 40;
+		this.mapa = mapa;
+		this.generator = g;
+		this.IDmando = idMando;
+		this.vidas = vidas;
+		this.puntos = new Puntos(puntos);
+		this.pulsado = true;
+		this.rotation  = angulo;
+		this.Vdir = new MyVector(Math.cos(Math.toRadians(getRotation())), Math.sin(Math.toRadians(getRotation())));	//vector director
+		this.Vact = new MyVector(vActX, vActY);
+		this.Vimpulso = new MyVector(vImpX, vImpY);
+		
+		this.y = posY;
+		
+		System.out.println("CONSTRUCTOR: entraPorDerecha "+entraPorDerecha);
+		if (entraPorDerecha){
+			this.x = mapa.getWidth();
+		}else this.x = 0-this.getWidth();	
+		
+		//inicializacion Vectores
+		//this.Vdir = new MyVector(Math.cos(Math.toRadians(getRotation())), Math.sin(Math.toRadians(getRotation())));	//vector director
+		System.out.println("ANGULO TEORICO: "+rotation+" VECTOR DIRECTOR: "+ Vdir.toString());
+		//this.Vimpulso = this.Vdir.MultiplicaVectores(aceleracion);
+		//this.Vact = this.Vimpulso;
+		//this.Vf = this.Vact.SumaVectores(Vimpulso);	//calcula Vector final
+		
+		this.sonidos = this.mapa.getGenerator().getSonidos();
 	}
 	
 	public void run() {
-
+		cargaImgs();
 		while(!muerto){
 			//TODO: quitar comentario
 			//mapa.chocaObjeto(this);
-			
-			//System.out.println("posicion nave: "+getPosicion());
-			
+
 			if(getPulsado()) avanzar();	//activa inercia
 
 			try {sleep(60);}
@@ -114,7 +153,8 @@ public class Nave extends Thread  {
 	 ***************    Métodos propios de la Nave		***************
 	 ******************************************************************/
 
-	protected synchronized void quitaVidas() {if(this.vidas>0) this.vidas--;}
+	protected synchronized void restaVidaNave() {if(this.vida>1) this.vida-=33;}	//%de vida
+	protected synchronized void quitaVidas() {if(this.vidas>0) this.vidas--;}		//num vidas
 
 	protected void avanzar() {
 		mapa.calculaLimitesdelMapa(this, null, null);
@@ -179,9 +219,8 @@ public class Nave extends Thread  {
 		g.rotate(Math.toRadians(getRotation()), this.getPosX() + this.getWidth()/2, this.getPosY() + this.getHeight()/2 );
 
 		if(getImpulso()) {
-			g.drawImage(fuegoImg, (int)this.getPosX(), (int)this.getPosY()+8, null);
+			g.drawImage(fuegoImg, (int)this.getPosX(), (int)this.getPosY()+12, null);
 			g.drawImage(NaveImg, (int)this.getPosX(), (int)this.getPosY(), null);
-			
 		}
 		else g.drawImage(NaveImg, (int)this.getPosX(), (int)this.getPosY(), null);
 	}
@@ -196,9 +235,32 @@ public class Nave extends Thread  {
 	 */
 	private void cargaImgs() {
 		try {
-			fuegoImg = ImageIO.read(Launcher.class.getResource("/img/fuego.png"));
-			NaveImg = ImageIO.read(Launcher.class.getResource("/img/nave1.png"));
-			NaveVidas = ImageIO.read(Launcher.class.getResource("/img/nave.fw.png"));
+			//fuegoImg = ImageIO.read(Launcher.class.getResource("/img/fuego.png"));
+			//System.out.println("Eligiendo img de la nave con ID "+this.IDmando);
+
+			//NaveImg = ImageIO.read(Launcher.class.getResource("/img/nave1.png"));
+			
+			switch(this.IDmando){
+				case 1: 
+					NaveImg = ImageIO.read(Launcher.class.getResource("/img/nave1.png"));
+					break;
+				case 2:
+					NaveImg = ImageIO.read(Launcher.class.getResource("/img/nave2.png"));
+					break;
+				case 3:
+					NaveImg = ImageIO.read(Launcher.class.getResource("/img/nave3.png"));
+					break;
+				case 4:
+					NaveImg = ImageIO.read(Launcher.class.getResource("/img/nave4.png"));
+					break;
+				case 5:
+					NaveImg = ImageIO.read(Launcher.class.getResource("/img/nave5.png"));
+					break;
+
+				default: 
+					NaveImg = ImageIO.read(Launcher.class.getResource("/img/nave0.png"));
+					break;
+			}
 		}
 		catch (IOException e) {e.printStackTrace();}
 	}
